@@ -1,0 +1,185 @@
+/* General Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.view {
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Sign-in View */
+#signin-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+}
+
+.signin-container {
+    width: 100%;
+    max-width: 360px;
+    padding: 40px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.signin-container h1 {
+    margin-bottom: 25px;
+    font-size: 24px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.error-message {
+    color: #d93025;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+/* Main View */
+#main-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 60px;
+    flex-shrink: 0;
+}
+
+.tabs {
+    display: flex;
+    height: 100%;
+}
+
+.tab-button {
+    padding: 0 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+#logout-button {
+    width: auto;
+    padding: 8px 15px;
+    background-color: #dc3545;
+    font-size: 14px;
+}
+
+#logout-button:hover {
+    background-color: #c82333;
+}
+
+.content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Add Sale Form */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+#sale-items-table, #transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#sale-items-table th, #sale-items-table td,
+#transactions-table th, #transactions-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#sale-items-table th, #transactions-table th {
+    background-color: #f2f2f2;
+}
+
+#add-item-button {
+    width: auto;
+    padding: 8px 15px;
+    margin-top: 10px;
+}
+
+.total-section {
+    margin-top: 20px;
+    text-align: right;
+    font-size: 18px;
+}
