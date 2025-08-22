@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, session } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -33,10 +33,22 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set up IPC handlers
-  require('./ipcHandlers/auth.js');
-  require('./ipcHandlers/customers.js');
-  require('./ipcHandlers/items.js');
-  require('./ipcHandlers/sales.js');
+  const { login, logout, storeToken, getToken } = require('./ipcHandlers/auth');
+  const { getCustomers } = require('./ipcHandlers/customers');
+  const { getItems, getItem } = require('./ipcHandlers/items');
+  const { getNextInvoiceNumber, addSale, getSales } = require('./ipcHandlers/sales');
+
+  ipcMain.handle('auth:login', (event, email, password) => login(email, password));
+  ipcMain.handle('auth:logout', () => logout());
+  ipcMain.handle('auth:storeToken', (event, token) => storeToken(token));
+  ipcMain.handle('auth:getToken', () => getToken());
+
+  ipcMain.handle('api:getCustomers', () => getCustomers());
+  ipcMain.handle('api:getItems', () => getItems());
+  ipcMain.handle('api:getItem', (event, id) => getItem(id));
+  ipcMain.handle('api:getNextInvoiceNumber', () => getNextInvoiceNumber());
+  ipcMain.handle('api:addSale', (event, sale) => addSale(sale));
+  ipcMain.handle('api:getSales', () => getSales());
 
   createWindow();
 
@@ -56,4 +68,17 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+app.on('ready', () => {
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval'; connect-src http://127.0.0.1:8000",
+        ],
+      },
+    });
+  });
 });

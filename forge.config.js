@@ -75,14 +75,30 @@ module.exports = {
             },
             resolve: {
               extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
+              alias: {
+                'process/browser': require.resolve('process/browser.js'),
+              },
               fallback: {
                 path: require.resolve('path-browserify'),
                 os: require.resolve('os-browserify/browser'),
                 crypto: require.resolve('crypto-browserify'),
                 stream: require.resolve('stream-browserify'),
                 vm: require.resolve('vm-browserify'),
+                buffer: require.resolve('buffer/'),
+                process: require.resolve('process/browser.js'),
               },
             },
+            plugins: [
+              new webpack.ProvidePlugin({
+                Buffer: ['buffer', 'Buffer'],
+                process: 'process/browser',
+              }),
+              new webpack.DefinePlugin({
+                __dirname: JSON.stringify('/'),
+                __filename: JSON.stringify('/index.js'),
+                'process.env.API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'http://localhost:3000/api'),
+              }),
+            ],
           },
           entryPoints: [
             {
@@ -92,6 +108,23 @@ module.exports = {
               preload: {
                 js: './electron/preload.ts',
                 config: {
+                  module: {
+                    rules: [
+                      {
+                        test: /\.tsx?$/,
+                        exclude: /node_modules/,
+                        use: {
+                          loader: 'ts-loader',
+                          options: {
+                            transpileOnly: true,
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  resolve: {
+                    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
+                  },
                   plugins: [
                     new webpack.EnvironmentPlugin(['API_BASE_URL'])
                   ],
@@ -99,7 +132,6 @@ module.exports = {
               },
             },
           ],
-          devContentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src http://127.0.0.1:8000 ws://localhost:3000",
         },
       },
     },

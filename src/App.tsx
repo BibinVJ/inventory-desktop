@@ -1,26 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import SignIn from './pages/SignIn';
-import MainView from './pages/MainView';
+import React from 'react';
+import { AuthProvider } from './context/AuthContext';
+import AppRouter from './router';
 
 const App = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    useEffect(() => {
-        const token = (window as any).auth.getToken();
-        if (token) {
-            setIsAuthenticated(true);
-        }
-    }, []);
-
-    const handleLoginSuccess = () => {
-        setIsAuthenticated(true);
-    };
-
-    return (
-        <>
-            {isAuthenticated ? <MainView /> : <SignIn onLoginSuccess={handleLoginSuccess} />}
-        </>
-    );
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
+  );
 };
 
 export default App;

@@ -1,4 +1,7 @@
 const api = require('../services/api');
+const Store = require('electron-store');
+
+const store = new Store();
 
 const login = async (email, password) => {
   const formData = new FormData();
@@ -14,17 +17,17 @@ const login = async (email, password) => {
 };
 
 const logout = () => {
-  localStorage.removeItem('token');
+  store.delete('token');
   delete api.defaults.headers.common['Authorization'];
 };
 
 const storeToken = (token) => {
-  localStorage.setItem('token', token);
+  store.set('token', token);
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 };
 
 const getToken = () => {
-  return localStorage.getItem('token');
+  return store.get('token');
 };
 
 module.exports = {
