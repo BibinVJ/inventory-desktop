@@ -49,8 +49,9 @@ module.exports = {
         },
         renderer: {
           config: {
+            mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
             output: {
-              publicPath: './',
+              filename: '[name]/index.js',
             },
             module: {
               rules: [
@@ -95,6 +96,7 @@ module.exports = {
                 process: 'process/browser',
               }),
               new webpack.DefinePlugin({
+                'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
                 'process.env.API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'http://localhost:3000/api'),
               }),
             ],
