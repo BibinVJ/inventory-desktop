@@ -1,12 +1,13 @@
 // src/router/index.tsx
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router';
 import AddSale from '../pages/Sales/AddSale';
-import { useAuth } from '../hooks/useAuth';
 import SignIn from '../pages/AuthPages/SignIn';
 
-const AppRouter = () => {
-  const { isAuthenticated } = useAuth();
+interface AppRouterProps {
+  isAuthenticated: boolean;
+}
 
+const AppRouter = ({ isAuthenticated }: AppRouterProps) => {
   return (
     <Router>
       <Routes>

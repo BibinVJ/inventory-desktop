@@ -46,3 +46,16 @@ export const getUser = () => {
   }
   return null;
 };
+
+export const getToken = async () => {
+    return localStorage.getItem('token') || sessionStorage.getItem('token');
+}
+
+export const storeToken = async (token: string, persistent = false) => {
+    if (persistent) {
+        localStorage.setItem("token", token);
+    } else {
+        sessionStorage.setItem("token", token);
+    }
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}

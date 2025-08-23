@@ -55,9 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [checkAuth]);
 
   const login = async (email, password) => {
-    const token = await AuthService.login(email, password);
-    if (token) {
-      await AuthService.storeToken(token);
+    const response = await AuthService.login(email, password);
+    if (response.data.token.access_token) {
+      await AuthService.storeToken(response.data.token.access_token);
       await fetchProfile();
     }
   };
@@ -69,12 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const hasPermission = (permission: string) => {
-    return user?.permissions?.some((p) => p.name === permission) || false;
+    return user?.permission_names?.some((p) => p === permission) || false;
   };
-
-  if (loading) {
-    return <div>Loading...</div>; // Or a proper loading spinner
-  }
 
   return (
     <AuthContext.Provider
