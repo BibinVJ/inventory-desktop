@@ -48,7 +48,7 @@ export default function DatePicker({
   let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30`;
 
   if (error) {
-    inputClasses += ` border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
+    inputClasses += ` border-red-500 focus:border-red-300 focus:ring-red-500/20 dark:text-red-400 dark:border-red-500 dark:focus:border-red-800`;
   } else {
     inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700  dark:focus:border-brand-800`;
   }
@@ -71,7 +71,7 @@ export default function DatePicker({
 
       </div>
       {hint && (
-        <p className={`mt-1.5 text-xs ${error ? "text-error-500" : "text-gray-500"}`}>
+        <p className={`mt-1.5 text-xs ${error ? "text-red-500" : "text-gray-500"}`}>
           {hint}
         </p>
       )}

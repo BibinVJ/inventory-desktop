@@ -65,9 +65,6 @@ const SignInForm = () => {
               <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
                 Sign in to your account
               </h1>
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Enter your email below to sign in to your account
-              </p>
             </div>
 
             <div className="mt-5">
@@ -75,7 +72,7 @@ const SignInForm = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>
-                      Email <span className="text-error-500">*</span>
+                      Email <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       type="email"
@@ -90,7 +87,7 @@ const SignInForm = () => {
                   </div>
                   <div>
                     <Label>
-                      Password <span className="text-error-500">*</span>
+                      Password <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       type={showPassword ? "text" : "password"}

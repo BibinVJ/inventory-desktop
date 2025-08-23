@@ -12,7 +12,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
+    width: 1700,
     height: 900,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
