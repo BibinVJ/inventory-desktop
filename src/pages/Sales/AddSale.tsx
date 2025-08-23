@@ -167,11 +167,10 @@ export default function AddSale() {
         title="Add Sale"
         description="Add a new sale"
       />
-      <PageBreadcrumb pageTitle="Add Sale" breadcrumbs={[{ label: 'Sales', path: '/sales' }]} backButton={true}/>
       <ComponentCard>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+            <div className="md:col-span-2">
               <Label>Customer</Label>
               <div className="flex items-center gap-2">
                 <Select
@@ -182,6 +181,15 @@ export default function AddSale() {
                   error={!!getErrorMessage('customer_id')}
                   hint={getErrorMessage('customer_id')}
                   className="flex-grow"
+                />
+                <Select
+                  options={[
+                    { value: 'walk-in', label: 'Walk In' },
+                  ]}
+                  defaultValue="walk-in"
+                  placeholder=""
+                  searchable={false}
+                  onChange={(val) => console.log("Selected:", val)}
                 />
                 <Button type="button" onClick={openCustomerModal} className="p-1" size='xs'>
                   <Plus></Plus>
@@ -210,107 +218,144 @@ export default function AddSale() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-6 mb-4">
-            <h3 className="text-lg font-semibold dark:text-gray-400">Items</h3>
-            
-            <Button type="button" variant="outline" onClick={handleAddItem}>
-              Add Item
-            </Button>
-          </div>
-          {getErrorMessage('items') && <p className="text-sm text-red-500 mb-4">{getErrorMessage('items')}</p>}
+          {/* Items Section */}
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold dark:text-gray-400 mb-4">Items</h3>
 
-          {saleItems.map((item, index) => (
-            <div key={index} className="relative p-4 mb-4 border rounded-lg">
-              <button
-                type="button"
-                onClick={() => handleRemoveItem(index)}
-                className="absolute p-1 text-red-500 bg-red-100 rounded-full -top-2 -right-2 hover:bg-red-300"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-              </button>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-                <div className="md:col-span-2">
-                  <Label>Item</Label>
-                  <Select
-                    options={items.map(i => ({ value: String(i.id), label: i.name }))}
-                    onChange={(value) => { handleItemChange(index, 'item_id', value); clearError(`items.${index}.item_id`); }}
-                    defaultValue={item.item_id}
-                    placeholder="Select an item"
-                    error={!!getErrorMessage(`items.${index}.item_id`)}
-                    hint={getErrorMessage(`items.${index}.item_id`)}
-                  />
-                </div>
-                <div>
-                  <Label>Quantity</Label>
-                  <div className="relative">
+            {/* Search bar to add items */}
+            <Select
+              options={items.map(i => ({ value: String(i.id), label: i.name }))}
+              placeholder="Search and add an item..."
+              onChange={(value) => {
+                if (!saleItems.some(item => item.item_id === value)) {
+                  setSaleItems([
+                    ...saleItems,
+                    { item_id: value, quantity: 1, unit_price: 0, description: '', stock_on_hand: 0 }
+                  ]);
+                }
+              }}
+              className="mb-4"
+            />
+
+            {getErrorMessage('items') && <p className="text-sm text-red-500 mb-4">{getErrorMessage('items')}</p>}
+
+            {/* List of items */}
+            {saleItems.map((item, index) => (
+              <div key={index} className="relative p-4 mb-4 border rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => handleRemoveItem(index)}
+                  className="absolute p-1 text-red-500 bg-red-100 rounded-full -top-2 -right-2 hover:bg-red-300"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+                  <div className="md:col-span-2">
+                    <Label>Item</Label>
+                    <Input
+                      type="text"
+                      value={items.find(i => String(i.id) === item.item_id)?.name || ''}
+                      disabled
+                      className="bg-gray-100 dark:bg-gray-800"
+                    />
+                  </div>
+                  <div>
+                    <Label>Quantity</Label>
                     <Input
                       type="number"
                       value={item.quantity}
-                      onChange={(e) => { handleItemChange(index, 'quantity', Number(e.target.value)); clearError(`items.${index}.quantity`); }}
+                      onChange={(e) => handleItemChange(index, 'quantity', Number(e.target.value))}
                       error={!!getErrorMessage(`items.${index}.quantity`)}
                       hint={getErrorMessage(`items.${index}.quantity`)}
                     />
-                    {item.item_id && (
-                      <span className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500">
-                        {items.find(i => i.id === Number(item.item_id))?.unit.code}
-                      </span>
-                    )}
                   </div>
-                   {item.item_id && (
-                    <p className={`text-sm mt-1 ${
-                        item.stock_on_hand === 0 ? 'text-red-500' :
-                        item.stock_on_hand < 10 ? 'text-orange-500' :
-                        'text-gray-500'
-                    }`}>
-                        Available: {item.stock_on_hand}
-                    </p>
-                  )}
+                  <div>
+                    <Label>Unit Price</Label>
+                    <Input
+                      type="number"
+                      value={item.unit_price}
+                      onChange={(e) => handleItemChange(index, 'unit_price', Number(e.target.value))}
+                      error={!!getErrorMessage(`items.${index}.unit_price`)}
+                      hint={getErrorMessage(`items.${index}.unit_price`)}
+                    />
+                  </div>
+                  <div className="flex flex-col justify-end">
+                    <span className="font-semibold">Total</span>
+                    <span className="font-bold">
+                      {(item.quantity * item.unit_price).toFixed(2)}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <Label>Unit Price</Label>
+              </div>
+            ))}
+
+            {/* Bottom Section with Totals + Payment + Actions */}
+            <div className="flex flex-col md:flex-row justify-between mt-8 border-t pt-6">
+
+              {/* Totals Section (Left) */}
+              <div className="space-y-3 w-full md:w-1/2">
+                <div className="flex justify-between">
+                  <span className="font-semibold dark:text-gray-400">Total Items:</span>
+                  <span className="font-bold dark:text-white">{saleItems.length}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold dark:text-gray-400">Net Total:</span>
+                  <span className="font-bold dark:text-white">
+                    {saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold dark:text-gray-400">Tax (5%):</span>
+                  <span className="font-bold dark:text-white">
+                    {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 0.05).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-semibold dark:text-gray-400">Discount:</span>
                   <Input
                     type="number"
-                    value={item.unit_price}
-                    onChange={(e) => { handleItemChange(index, 'unit_price', Number(e.target.value)); clearError(`items.${index}.unit_price`); }}
-                    error={!!getErrorMessage(`items.${index}.unit_price`)}
-                    hint={getErrorMessage(`items.${index}.unit_price`)}
+                    placeholder="0"
+                    className="w-24"
+                    onChange={(e) => console.log("Discount applied:", e.target.value)}
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 gap-4 mt-4">
-                <div>
-                    <Label>Description</Label>
-                    <TextArea
-                        value={item.description}
-                        className="bg-gray-100 dark:bg-gray-800"
-                    />
-                </div>
-              </div>
-              <div className="flex justify-end mt-4">
-                <div className="flex items-center space-x-4">
-                  <span className="font-semibold dark:text-gray-400">Total:</span>
-                  <span className="font-bold dark:text-white">
-                    {(item.quantity * item.unit_price).toFixed(2)}
+                <div className="flex justify-between text-lg font-bold border-t pt-2">
+                  <span className="dark:text-gray-200">Grand Total:</span>
+                  <span className="dark:text-white">
+                    {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 1.05).toFixed(2)}
                   </span>
                 </div>
               </div>
-            </div>
-          ))}
 
-          <div className="flex justify-end mt-6">
-            <div className="flex items-center space-x-4">
-                <span className="text-lg font-semibold dark:text-gray-400">Net Total:</span>
-                <span className="text-lg font-bold dark:text-white">
-                    {saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0).toFixed(2)}
-                </span>
+              {/* Payment & Actions (Right) */}
+              <div className="flex flex-col w-full md:w-1/3 space-y-4 mt-6 md:mt-0">
+                <Label>Payment Method</Label>
+                <Select
+                  options={[
+                    { value: 'cash', label: 'Cash' },
+                    { value: 'upi', label: 'UPI' },
+                    { value: 'card', label: 'Card' }
+                  ]}
+                  onChange={(val) => console.log("Selected:", val)}
+                  placeholder="Select payment method"
+                />
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <Button type="button" variant="outline">
+                    Save
+                  </Button>
+                  <Button type="submit">
+                    Save & Print
+                  </Button>
+                </div>
+              </div>
             </div>
+
           </div>
 
-          <div className="flex justify-end mt-6">
-            <Button type="submit">
-              Save Sale
-            </Button>
-          </div>
         </form>
       </ComponentCard>
       <AddCustomerModal isOpen={isCustomerModalOpen} onClose={closeCustomerModal} onCustomerAdded={handleCustomerAdded} />

@@ -35,6 +35,8 @@ export interface SalePayload {
   customer_id: string;
   invoice_number: string;
   sale_date: string;
+  discount?: number;
+  tax_percentage?: number;
   items: {
     item_id: string;
     quantity: number;
