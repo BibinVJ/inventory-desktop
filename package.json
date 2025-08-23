@@ -1,6 +1,6 @@
 {
-  "name": "desktop",
-  "productName": "desktop",
+  "name": "inventory-manager",
+  "productName": "Inventory Manager",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",

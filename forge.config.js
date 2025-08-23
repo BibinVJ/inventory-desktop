@@ -6,6 +6,7 @@ require('dotenv').config();
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon: 'electron/assets/icon.png',
   },
   rebuildConfig: {},
   makers: [
@@ -19,10 +20,6 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
       config: {},
     },
   ],
@@ -53,7 +50,7 @@ module.exports = {
         renderer: {
           config: {
             output: {
-              publicPath: '/',
+              publicPath: './',
             },
             module: {
               rules: [
@@ -98,8 +95,6 @@ module.exports = {
                 process: 'process/browser',
               }),
               new webpack.DefinePlugin({
-                __dirname: JSON.stringify('/'),
-                __filename: JSON.stringify('/index.js'),
                 'process.env.API_BASE_URL': JSON.stringify(process.env.API_BASE_URL || 'http://localhost:3000/api'),
               }),
             ],

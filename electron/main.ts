@@ -26,6 +26,13 @@ function createWindow() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  // Suppress harmless console warnings
+  mainWindow.webContents.on('console-message', (event, level, message) => {
+    if (message.includes('Autofill') || message.includes('GetVSyncParametersIfAvailable')) {
+      event.preventDefault();
+    }
+  });
 }
 
 // This method will be called when Electron has finished
@@ -76,7 +83,7 @@ app.on('ready', () => {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self' 'unsafe-eval'; connect-src http://127.0.0.1:8000; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;",
+          "default-src 'self' file:; script-src 'self' 'unsafe-eval' file:; connect-src *; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:;",
         ],
       },
     });
