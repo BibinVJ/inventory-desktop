@@ -1,7 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import PageBreadcrumb from '../../components/common/PageBreadCrumb';
-import ComponentCard from '../../components/common/ComponentCard';
 import PageMeta from '../../components/common/PageMeta';
 import Button from '../../components/ui/button/Button';
 import Select from '../../components/form/Select';
@@ -139,6 +137,16 @@ export default function AddSale() {
   const handleRemoveItem = (index: number) => {
     const newItems = [...saleItems];
     newItems.splice(index, 1);
+    
+    // Clear all item-related errors and reindex them
+    const newErrors = { ...errors };
+    Object.keys(newErrors).forEach(key => {
+      if (key.startsWith('items.')) {
+        delete newErrors[key as keyof ApiError];
+      }
+    });
+    setErrors(newErrors);
+    
     if (newItems.length === 0) {
       setSaleItems([{ item_id: '', quantity: 1, unit_price: 0, description: '', stock_on_hand: 0, unit_code: '' }]);
     } else {
@@ -179,6 +187,8 @@ export default function AddSale() {
         customer_id: customerId,
         invoice_number: invoiceNumber,
         sale_date: saleDate,
+        payment_status: 'paid',
+        payment_method: paymentMethod,
         items: saleItems.map(({ unit_code, ...item }) => item),
       });
       toast.success('Sale created successfully');
@@ -392,9 +402,9 @@ export default function AddSale() {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Tax (5%):</span>
+                <span>Tax (0%):</span>
                 <span className="font-bold">
-                  {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 0.05).toFixed(2)}
+                  {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 0.00).toFixed(2)}
                 </span>
               </div>
               {/* <div className="flex justify-between">
@@ -404,7 +414,7 @@ export default function AddSale() {
               <div className="flex justify-between text-lg font-bold border-t pt-2">
                 <span>Grand Total:</span>
                 <span>
-                  {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 1.05).toFixed(2)}
+                  {(saleItems.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0) * 1.00).toFixed(2)}
                 </span>
               </div>
             </div>

@@ -8,8 +8,8 @@ import { isApiError } from "../../utils/errors";
 import { toast } from "sonner";
 
 const SignInForm = () => {
-  const [form, setForm] = useState({ email: "admin@example.com", password: "Example@123" });
-  const [errors, setErrors] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ identifier: "", password: "Example@123" }); // identifier = email or mobile
+  const [errors, setErrors] = useState({ identifier: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -21,30 +21,41 @@ const SignInForm = () => {
     setErrors({ ...errors, [name]: "" });
   };
 
+  // validate only if it's email
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!form.email) {
-      setErrors({ ...errors, email: 'Email is required' });
+    if (!form.identifier) {
+      setErrors({ ...errors, identifier: "Email or mobile is required" });
+      return;
+    }
+
+    // if contains "@" → treat as email, validate format
+    if (form.identifier.includes("@") && !isValidEmail(form.identifier)) {
+      setErrors({
+        ...errors,
+        identifier: "Enter a valid email address",
+      });
       return;
     }
 
     if (!form.password) {
-      setErrors({ ...errors, password: 'Password is required' });
+      setErrors({ ...errors, password: "Password is required" });
       return;
     }
-
 
     setLoading(true);
 
     try {
-      await login(form.email, form.password);
+      await login(form.identifier, form.password);
     } catch (err: unknown) {
       if (isApiError(err)) {
         const message = err.response?.data?.message || "An error occurred";
-        console.log(err.response);
         setErrors({
-          email: err.response?.data?.errors?.email?.[0] || " ",
+          identifier: err.response?.data?.errors?.identifier?.[0] || " ",
           password: err.response?.data?.errors?.password?.[0] || " ",
         });
         toast.error(message);
@@ -72,17 +83,17 @@ const SignInForm = () => {
                 <div className="space-y-6">
                   <div>
                     <Label>
-                      Email <span className="text-red-500">*</span>
+                      Email or Mobile <span className="text-red-500">*</span>
                     </Label>
                     <Input
-                      type="email"
-                      name="email"
-                      value={form.email}
+                      type="text"
+                      name="identifier"
+                      value={form.identifier}
                       onChange={handleChange}
-                      placeholder="Email"
-                      autoComplete="email"
-                      error={!!errors.email}
-                      hint={errors.email}
+                      placeholder="Enter email or mobile number"
+                      autoComplete="username"
+                      error={!!errors.identifier}
+                      hint={errors.identifier}
                     />
                   </div>
                   <div>

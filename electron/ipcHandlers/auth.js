@@ -3,9 +3,9 @@ const Store = require('electron-store');
 
 const store = new Store();
 
-const login = async (email, password) => {
+const login = async (identifier, password) => {
   const formData = new FormData();
-  formData.append('email', email);
+  formData.append('identifier', identifier);
   formData.append('password', password);
 
   const response = await api.post('/login', formData, {

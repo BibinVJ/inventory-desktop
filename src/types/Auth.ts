@@ -3,7 +3,7 @@ import { User } from "./User";
 export interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
   fetchProfile: () => Promise<void>;

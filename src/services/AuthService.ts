@@ -1,9 +1,9 @@
 import api from "./api";
 import { LoginResponse } from "../types";
 
-export const login = async (email: string, password: string): Promise<LoginResponse> => {
+export const login = async (identifier: string, password: string): Promise<LoginResponse> => {
   const formData = new FormData();
-  formData.append("email", email);
+  formData.append("identifier", identifier);
   formData.append("password", password);
 
   const response = await api.post('/login', formData);
