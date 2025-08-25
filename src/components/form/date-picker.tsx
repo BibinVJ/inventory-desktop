@@ -2,10 +2,9 @@ import { useEffect } from "react";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.css";
 import Label from "./Label";
-
 import Hook = flatpickr.Options.Hook;
 import DateOption = flatpickr.Options.DateOption;
-import { CalendarSearchIcon } from "lucide-react";
+import { CalenderIcon } from "../../icons";
 
 type PropsType = {
   id: string;
@@ -31,7 +30,6 @@ export default function DatePicker({
   useEffect(() => {
     const flatPickr = flatpickr(`#${id}`, {
       mode: mode || "single",
-      static: true,
       monthSelectorType: "static",
       dateFormat: "Y-m-d",
       defaultDate,
@@ -64,11 +62,9 @@ export default function DatePicker({
           className={inputClasses}
         />
 
-
-        {/* <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">                                                         │
-          <CalendarSearchIcon className="size-6" />                                                                                                                                     │
-        </span> */}
-
+        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+          <CalenderIcon className="size-6" />
+        </span>
       </div>
       {hint && (
         <p className={`mt-1.5 text-xs ${error ? "text-red-500" : "text-gray-500"}`}>

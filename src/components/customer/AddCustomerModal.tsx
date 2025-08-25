@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Modal } from '../ui/modal';
 import Input from '../form/input/InputField';
 import Label from '../form/Label';
-import Switch from '../form/switch/Switch';
 import TextArea from '../form/input/TextArea';
 import Button from '../ui/button/Button';
 import { toast } from 'sonner';
@@ -22,7 +21,6 @@ export default function AddCustomerModal({ isOpen, onClose, onCustomerAdded }: P
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  const [isActive, setIsActive] = useState(true);
   const [errors, setErrors] = useState({ name: '', email: '', phone: '', address: '' });
 
   const resetForm = () => {
@@ -30,7 +28,6 @@ export default function AddCustomerModal({ isOpen, onClose, onCustomerAdded }: P
     setEmail('');
     setPhone('');
     setAddress('');
-    setIsActive(true);
     setErrors({ name: '', email: '', phone: '', address: '' });
   };
 
@@ -61,7 +58,7 @@ export default function AddCustomerModal({ isOpen, onClose, onCustomerAdded }: P
     }
 
     try {
-      const response = await addCustomer({ name, email, phone, address, is_active: isActive });
+      const response = await addCustomer({ name, email, phone, address, is_active: true });
       onCustomerAdded(response.data);
       toast.success('Customer added successfully');
       handleClose();
@@ -112,11 +109,7 @@ export default function AddCustomerModal({ isOpen, onClose, onCustomerAdded }: P
                 <div className="lg:col-span-2">
                   <Label>Address</Label>
                   <TextArea placeholder="Enter address" value={address} onChange={(value) => {setAddress(value); setErrors({...errors, address: ''})}} error={!!errors.address} hint={errors.address} />
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Switch label={isActive ? 'Active' : 'Inactive'} checked={isActive} onChange={setIsActive} />
-                </div>
+              </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">

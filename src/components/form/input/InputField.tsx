@@ -16,8 +16,9 @@ interface InputProps {
   success?: boolean;
   error?: boolean;
   hint?: string;
-  rightIcon?: ReactNode; // 👀 This is new
-  onRightIconClick?: () => void; // 👈 For clickable icons like password toggle
+  rightIcon?: ReactNode;
+  onRightIconClick?: () => void;
+  suffix?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -38,58 +39,62 @@ const Input: FC<InputProps> = ({
   hint,
   rightIcon,
   onRightIconClick,
+  suffix,
 }) => {
-  let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-none focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${className}`;
+  let containerClasses = `relative flex items-center h-11 w-full rounded-lg border shadow-theme-xs focus-within:ring-3`;
 
   if (disabled) {
-    inputClasses += ` text-gray-500 border-gray-300 opacity-40 bg-gray-100 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
+    containerClasses += ` text-gray-500 border-gray-300 opacity-40 cursor-not-allowed dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700`;
   } else if (error) {
-    inputClasses += ` border-red-500 focus:border-red-300 focus:ring-red-500/20 dark:text-red-400 dark:border-red-500 dark:focus:border-red-800`;
+    containerClasses += ` border-red-500 focus-within:border-red-300 focus-within:ring-red-500/20 dark:text-red-400 dark:border-red-500 dark:focus-within:border-red-800`;
   } else if (success) {
-    inputClasses += ` border-success-500 focus:border-success-300 focus:ring-success-500/20 dark:text-success-400 dark:border-success-500 dark:focus:border-success-800`;
+    containerClasses += ` border-success-500 focus-within:border-success-300 focus-within:ring-success-500/20 dark:text-success-400 dark:border-success-500 dark:focus-within:border-success-800`;
   } else {
-    inputClasses += ` bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-800`;
+    containerClasses += ` bg-transparent text-gray-800 border-gray-300 focus-within:border-brand-300 focus-within:ring-brand-500/20 dark:border-gray-700 dark:text-white/90 dark:focus-within:border-brand-800`;
   }
 
+  const inputClasses = `h-full w-full appearance-none px-3 py-2.5 text-sm bg-transparent placeholder:text-gray-400 focus:outline-none dark:text-white/90 dark:placeholder:text-white/30`;
+
   return (
-    <div className="relative">
-      <input
-        type={type}
-        id={id}
-        name={name}
-        placeholder={placeholder}
-        value={value}
-        autoComplete={autoComplete}
-        onChange={onChange}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        className={inputClasses}
-      />
-
-      {rightIcon && (
-        <span
-          className="absolute inset-y-0 right-4 flex items-center cursor-pointer z-30"
-          onClick={onRightIconClick}
-        >
-          {rightIcon}
-        </span>
-      )}
-
-      {hint && (
-        <p
-          className={`mt-1.5 text-xs ${
-            error
-            ? "text-red-500"
-              : success
-              ? "text-success-500"
-              : "text-gray-500"
-          }`}
-        >
-          {hint}
-        </p>
-      )}
+    <div>
+      <div className={`${containerClasses} ${className}`}>
+        <input
+          type={type}
+          id={id}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          autoComplete={autoComplete}
+          onChange={onChange}
+          min={min}
+          max={max}
+          step={step}
+          disabled={disabled}
+          className={inputClasses}
+        />
+        {suffix && (
+          <div className="px-2 text-gray-500 text-sm">{suffix}</div>
+        )}
+        {rightIcon && (
+          <div
+            className="px-2 cursor-pointer"
+            onClick={onRightIconClick}
+          >
+            {rightIcon}
+          </div>
+        )}
+      </div>
+      <p
+        className={`mt-1.5 text-xs h-5 ${
+          error
+          ? "text-red-500"
+            : success
+            ? "text-success-500"
+            : "text-gray-500"
+        }`}
+      >
+        {hint || '\u00A0'}
+      </p>
     </div>
   );
 };

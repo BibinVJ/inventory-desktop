@@ -41,3 +41,7 @@
 .tableCheckbox:checked ~ span {
   @apply border-blue-500 bg-blue-500;
 }
+
+.flatpickr-wrapper {
+  width: 100%;
+}

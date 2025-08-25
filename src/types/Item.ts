@@ -9,6 +9,7 @@ export interface Item {
   category: Category;
   unit: Unit;
   type: string;
+  selling_price: number;
   is_active: boolean;
   stock_on_hand?: number;
   non_expired_stock?: number;
@@ -25,12 +26,4 @@ export interface ItemApiResponse {
     from: number;
     to: number;
   };
-}
-
-export interface StockAlert {
-    id: number;
-    name: string;
-    sku: string;
-    stock_on_hand: number;
-    reorder_level: number;
 }
