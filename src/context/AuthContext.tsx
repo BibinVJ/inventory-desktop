@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useState,
   ReactNode,
@@ -20,8 +20,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const profile = await ProfileService.getProfile();
-      setUser(profile);
+      const response = await ProfileService.getProfile();
+      setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -54,8 +54,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, [checkAuth]);
 
-  const login = async (email, password) => {
-    const response = await AuthService.login(email, password);
+  const login = async (identifier: string, password: string) => {
+    const response = await AuthService.login(identifier, password);
     if (response.data.token.access_token) {
       await AuthService.storeToken(response.data.token.access_token);
       await fetchProfile();
@@ -69,7 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const hasPermission = (permission: string) => {
-    return user?.permission_names?.some((p) => p === permission) || false;
+    const result = user?.permission_names?.includes(permission) || false;
+    return result;
   };
 
   return (

@@ -13,6 +13,7 @@ interface InputProps {
   max?: string;
   step?: number;
   disabled?: boolean;
+  readOnly?: boolean;
   success?: boolean;
   error?: boolean;
   hint?: string;
@@ -34,6 +35,7 @@ const Input: FC<InputProps> = ({
   max,
   step,
   disabled = false,
+  readOnly = false,
   success = false,
   error = false,
   hint,
@@ -70,6 +72,7 @@ const Input: FC<InputProps> = ({
           max={max}
           step={step}
           disabled={disabled}
+          readOnly={readOnly}
           className={inputClasses}
         />
         {suffix && (
@@ -84,17 +87,19 @@ const Input: FC<InputProps> = ({
           </div>
         )}
       </div>
-      <p
-        className={`mt-1.5 text-xs h-5 ${
-          error
-          ? "text-red-500"
-            : success
-            ? "text-success-500"
-            : "text-gray-500"
-        }`}
-      >
-        {hint || '\u00A0'}
-      </p>
+      {hint && (
+        <p
+          className={`mt-1.5 text-xs h-5 ${
+            error
+            ? "text-red-500"
+              : success
+              ? "text-success-500"
+              : "text-gray-500"
+          }`}
+        >
+          {hint}
+        </p>
+      )}
     </div>
   );
 };

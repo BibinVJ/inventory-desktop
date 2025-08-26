@@ -15,7 +15,7 @@ const ButtonGroupRadio: FC<ButtonGroupRadioProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex gap-2 w-full ${className}`}>
+    <div className={`grid grid-cols-1 gap-2 w-full md:grid-cols-${options.length} ${className}`}>
       {options.map(option => (
         <Button
           key={option.value}

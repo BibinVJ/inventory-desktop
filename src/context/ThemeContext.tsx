@@ -30,16 +30,26 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     if (isInitialized) {
       localStorage.setItem("theme", theme);
+      console.log('Applying theme to DOM:', theme);
+      console.log('Document element classes before:', document.documentElement.className);
+      
       if (theme === "dark") {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
+      
+      console.log('Document element classes after:', document.documentElement.className);
     }
   }, [theme, isInitialized]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    console.log('Toggle theme called, current theme:', theme);
+    setTheme((prevTheme) => {
+      const newTheme = prevTheme === "light" ? "dark" : "light";
+      console.log('Setting new theme:', newTheme);
+      return newTheme;
+    });
   };
 
   return (

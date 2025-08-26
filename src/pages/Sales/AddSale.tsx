@@ -15,11 +15,12 @@ import { getItems, getItem } from '../../services/ItemService';
 import { getNextInvoiceNumber, addSale } from '../../services/SaleService';
 import ButtonGroupRadio from '../../components/form/ButtonGroupRadio';
 import EditCustomerModal from '../../components/customer/EditCustomerModal';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '../../components/ui/table';
 
 import AddCustomerModal from '../../components/customer/AddCustomerModal';
 import { useModal } from '../../hooks/useModal';
 import { Customer, Item } from '../../types';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, X } from 'lucide-react';
 import { isApiError } from '../../utils/errors';
 
 interface SaleItem {
@@ -51,6 +52,7 @@ export default function AddSale() {
   const navigate = useNavigate();
   const [selectKey, setSelectKey] = useState(Date.now());
   const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [note, setNote] = useState('');
 
   useEffect(() => {
     fetchInitialData();
@@ -63,8 +65,8 @@ export default function AddSale() {
         getItems(1, 10, 'created_at', 'desc', true),
         getNextInvoiceNumber()
       ]);
-      setCustomers(customerResponse.data || customerResponse);
-      setItems(itemResponse.data || itemResponse);
+      setCustomers(Array.isArray(customerResponse) ? customerResponse : customerResponse.data);
+      setItems(Array.isArray(itemResponse) ? itemResponse : itemResponse.data);
       if (invoiceResponse) {
         setInvoiceNumber(invoiceResponse.data.invoice_number);
       }
@@ -187,9 +189,11 @@ export default function AddSale() {
         customer_id: customerId,
         invoice_number: invoiceNumber,
         sale_date: saleDate,
+        status: 'completed',
         payment_status: 'paid',
         payment_method: paymentMethod,
-        items: saleItems.map(({ unit_code, ...item }) => item),
+        note: note,
+        items: saleItems.map(({ unit_code: _, ...item }) => item),
       });
       toast.success('Sale created successfully');
       navigate('/sales');
@@ -266,35 +270,38 @@ export default function AddSale() {
             )}
 
             {/* Scrollable Item List */}
-            <div className="space-y-4">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="p-2 text-left w-2/5">Item</th>
-                    <th className="p-2 text-left w-1/5">Quantity</th>
-                    <th className="p-2 text-left w-1/5">Unit Price</th>
-                    <th className="p-2 text-left">Total</th>
-                    <th className="p-2 text-left"></th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+              <div className="max-w-full overflow-x-auto">
+                <Table>
+                <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                  <TableRow>
+                    <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 w-2/5">Item</TableCell>
+                      <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 w-1/5">Stock on Hand</TableCell>
+                    <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 w-1/5">Quantity</TableCell>
+                    <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 w-1/5">Unit Price</TableCell>
+                    <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400">Total</TableCell>
+                    <TableCell isHeader className="px-4 py-3 font-medium text-gray-500 text-start text-sm dark:text-gray-400 w-16">Action</TableCell>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                   {saleItems.map((item, index) => (
-                    item.item_id && ( // Only render row if item_id is present
-                      <tr key={index}>
-                        <td className="p-2">
+                    item.item_id && (
+                      <TableRow key={index}>
+                        <TableCell className="px-4 py-3 align-top">
                           <Input
                             type="text"
                             value={items.find(i => String(i.id) === item.item_id)?.name || ''}
-                            disabled
-                            className="bg-gray-100 dark:bg-gray-800 text-black opacity-100"
+                            readOnly
                           />
-                        </td>
-                        <td className="p-2">
-                          <p className={`text-xs mb-1 ${item.stock_on_hand === 0 ? 'text-red-500' :
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <p className={`text-center ${item.stock_on_hand === 0 ? 'text-red-500' :
                             item.stock_on_hand < 20 ? 'text-orange-500' : 'text-gray-500'
                             }`}>
-                            Stock: {item.stock_on_hand}
+                            {item.stock_on_hand}
                           </p>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 align-top">
                           <Input
                             type="number"
                             value={item.quantity}
@@ -303,9 +310,8 @@ export default function AddSale() {
                             hint={getErrorMessage(`items.${index}.quantity`)}
                             suffix={item.unit_code}
                           />
-                        </td>
-                        <td className="p-2">
-                          <p className="text-xs mb-1">&nbsp;</p>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 align-top">
                           <Input
                             type="number"
                             value={item.unit_price}
@@ -313,28 +319,27 @@ export default function AddSale() {
                             error={!!getErrorMessage(`items.${index}.unit_price`)}
                             hint={getErrorMessage(`items.${index}.unit_price`)}
                           />
-                        </td>
-                        <td className="p-2 text-right">
-                          <p className="text-xs mb-1">&nbsp;</p>
+                        </TableCell>
+                        <TableCell className="px-4 py-3 text-end">
                           <span className="font-bold">
                             {(item.quantity * item.unit_price).toFixed(2)}
                           </span>
-                        </td>
-                        <td className="p-2">
-                          <p className="text-xs mb-1">&nbsp;</p>
-                          <button
-                            type="button"
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          <Button
+                            size="xs"
+                            variant="danger"
                             onClick={() => handleRemoveItem(index)}
-                            className="p-1 text-red-500 rounded-full hover:bg-red-100"
                           >
-                            ✕
-                          </button>
-                        </td>
-                      </tr>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
                     )
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
 
@@ -387,10 +392,19 @@ export default function AddSale() {
                   hint={getErrorMessage('sale_date')}
                 />
               </div>
+
+              <div>
+                <Label>Note</Label>
+                <TextArea
+                  value={note}
+                  onChange={(value) => { setNote(value); clearError('note'); }}
+                  placeholder="Add a note for this sale..."
+                />
+              </div>
             </div>
 
             {/* Totals */}
-            <div className="border-t pt-4 space-y-3">
+            <div className="border-t pt-4 space-y-3 dark:text-gray-400">
               <div className="flex justify-between">
                 <span>Total Items:</span>
                 <span className="font-bold">{saleItems.filter(i => i.item_id).length}</span>

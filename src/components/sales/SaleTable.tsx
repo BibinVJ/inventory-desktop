@@ -7,12 +7,11 @@ import {
 } from "../ui/table";
 import { useState } from "react";
 import Badge from "../ui/badge/Badge";
-import { ChevronsUpDown, ArrowUpWideNarrow, ArrowDownNarrowWide, View } from 'lucide-react';
+import { ChevronsUpDown, ArrowUpWideNarrow, ArrowDownNarrowWide, Trash2Icon, ViewIcon } from 'lucide-react';
 import Button from "../ui/button/Button";
-import { PencilIcon, TrashBinIcon } from "../../icons";
 import Tooltip from "../ui/tooltip/Tooltip";
-import { useNavigate } from "react-router";
 import VoidSaleModal from "./VoidSaleModal";
+import ViewSaleModal from "./ViewSaleModal";
 
 import { Sale } from '../../types';
 
@@ -30,16 +29,14 @@ import { usePermissions } from "../../hooks/usePermissions";
 
 export default function SaleTable({ data, onAction, onSort, sortBy, sortDirection, currentPage, perPage }: Props) {
   const { hasPermission } = usePermissions();
-  const navigate = useNavigate();
   const [isVoidModalOpen, setIsVoidModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [viewSaleId, setViewSaleId] = useState<number | null>(null);
 
   const handleView = (id: number) => {
-    navigate(`/sales/${id}`);
-  };
-
-  const handleEdit = (id: number) => {
-    navigate(`/sales/edit/${id}`);
+    setViewSaleId(id);
+    setIsViewModalOpen(true);
   };
 
   const handleDelete = (sale: Sale) => {
@@ -47,9 +44,14 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
     setIsVoidModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseVoidModal = () => {
     setIsVoidModalOpen(false);
     setSelectedSale(null);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setViewSaleId(null);
   };
 
   const renderSortIcon = (column: string) => {
@@ -74,8 +76,8 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 cursor-pointer text-start text-theme-xs dark:text-gray-400" onClick={() => onSort('sale_date')}>Sale Date {renderSortIcon('sale_date')}</TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 cursor-pointer text-start text-theme-xs dark:text-gray-400" onClick={() => onSort('customer_id')}>Customer {renderSortIcon('customer_id')}</TableCell>
               <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 cursor-pointer text-start text-theme-xs dark:text-gray-400" onClick={() => onSort('total_amount')}>Total Amount {renderSortIcon('total_amount')}</TableCell>
-              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 cursor-pointer text-start text-theme-xs dark:text-gray-400" onClick={() => onSort('payment_status')}>Payment Status {renderSortIcon('payment_status')}</TableCell>
-              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Actions</TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 cursor-pointer text-start text-theme-xs dark:text-gray-400" onClick={() => onSort('status')}>Status {renderSortIcon('status')}</TableCell>
+              <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400 min-w-32">Actions</TableCell>
             </TableRow>
           </TableHeader>
 
@@ -92,12 +94,12 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
                 <TableCell className="px-4 py-3 text-gray-800 text-start text-theme-sm dark:text-gray-400">{sale.customer.name}</TableCell>
                 <TableCell className="px-4 py-3 text-gray-800 text-start text-theme-sm dark:text-gray-400">{sale.total_amount}</TableCell>
                 <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  <Badge size="sm" color={sale.payment_status === 'paid' ? "success" : "warning"}>
-                    {sale.payment_status}
+                  <Badge size="sm" color={sale.status === 'completed' ? 'success' : (sale.status === 'voided' ? 'error' : 'primary')}>
+                    {sale.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                  <div className="flex items-center gap-2">
+                <TableCell className="px-4 py-3 text-gray-500 text-start text-theme-sm dark:text-gray-400 min-w-32">
+                  <div className="flex items-center gap-1">
                     {hasPermission("view-sale") && (
                       <Tooltip text="View">
                         <Button
@@ -105,18 +107,7 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
                           onClick={() => handleView(sale.id)}
                           className="bg-gray-600 hover:bg-gray-700 text-white"
                         >
-                          <View className="w-4 h-4" />
-                        </Button>
-                      </Tooltip>
-                    )}
-                    {hasPermission("update-sale") && (
-                      <Tooltip text="Edit">
-                        <Button
-                          size="xs"
-                          onClick={() => handleEdit(sale.id)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                          <PencilIcon className="w-4 h-4" />
+                          <ViewIcon className="w-4 h-4" />
                         </Button>
                       </Tooltip>
                     )}
@@ -127,7 +118,7 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
                           onClick={() => handleDelete(sale)}
                           className="bg-red-600 hover:bg-red-700 text-white"
                         >
-                          <TrashBinIcon className="w-4 h-4" />
+                          <Trash2Icon className="w-4 h-4" />
                         </Button>
                       </Tooltip>
                     )}
@@ -141,9 +132,16 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
       {selectedSale && (
         <VoidSaleModal
           isOpen={isVoidModalOpen}
-          onClose={handleCloseModal}
+          onClose={handleCloseVoidModal}
           onSaleVoided={onAction}
           sale={selectedSale}
+        />
+      )}
+      {viewSaleId && (
+        <ViewSaleModal
+          isOpen={isViewModalOpen}
+          onClose={handleCloseViewModal}
+          saleId={viewSaleId}
         />
       )}
     </div>

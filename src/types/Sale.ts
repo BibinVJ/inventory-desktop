@@ -19,6 +19,7 @@ export interface Sale {
   status: string;
   payment_status: string;
   payment_method: string;
+  note?: string;
   is_active: boolean;
   items: SaleItem[];
 }
@@ -38,8 +39,10 @@ export interface SalePayload {
   customer_id: string;
   invoice_number: string;
   sale_date: string;
+  status: string;
   payment_status: string;
   payment_method: string;
+  note?: string;
   discount?: number;
   tax_percentage?: number;
   items: {

@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
-const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -24,11 +23,13 @@ function createWindow() {
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open DevTools only in development
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Suppress harmless console warnings
-  mainWindow.webContents.on('console-message', (event, level, message) => {
+  mainWindow.webContents.on('console-message', (event: any, level: any, message: string) => {
     if (message.includes('Autofill') || message.includes('GetVSyncParametersIfAvailable')) {
       event.preventDefault();
     }
@@ -45,16 +46,16 @@ app.whenReady().then(() => {
   const { getItems, getItem } = require('./ipcHandlers/items');
   const { getNextInvoiceNumber, addSale, getSales } = require('./ipcHandlers/sales');
 
-  ipcMain.handle('auth:login', (event, email, password) => login(email, password));
+  ipcMain.handle('auth:login', (_event: any, identifier: string, password: string) => login(identifier, password));
   ipcMain.handle('auth:logout', () => logout());
-  ipcMain.handle('auth:storeToken', (event, token) => storeToken(token));
+  ipcMain.handle('auth:storeToken', (_event: any, token: string) => storeToken(token));
   ipcMain.handle('auth:getToken', () => getToken());
 
   ipcMain.handle('api:getCustomers', () => getCustomers());
   ipcMain.handle('api:getItems', () => getItems());
-  ipcMain.handle('api:getItem', (event, id) => getItem(id));
+  ipcMain.handle('api:getItem', (_event: any, id: string) => getItem(id));
   ipcMain.handle('api:getNextInvoiceNumber', () => getNextInvoiceNumber());
-  ipcMain.handle('api:addSale', (event, sale) => addSale(sale));
+  ipcMain.handle('api:addSale', (_event: any, sale: any) => addSale(sale));
   ipcMain.handle('api:getSales', () => getSales());
 
   createWindow();
@@ -78,7 +79,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('ready', () => {
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  session.defaultSession.webRequest.onHeadersReceived((details: any, callback: any) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,

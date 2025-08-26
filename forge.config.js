@@ -6,7 +6,7 @@ require('dotenv').config();
 module.exports = {
   packagerConfig: {
     asar: true,
-    icon: 'electron/assets/icon.png',
+    icon: 'assets/icons/icon.png',
   },
   rebuildConfig: {},
   makers: [

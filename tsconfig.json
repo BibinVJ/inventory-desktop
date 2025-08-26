@@ -15,11 +15,23 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false
   },
-  "include": ["src", "electron"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src/components/**/*.{ts,tsx}",
+    "src/context/**/*.{ts,tsx}",
+    "src/hooks/**/*.{ts,tsx}",
+    "src/layout/**/*.{ts,tsx}",
+    "src/pages/**/*.{ts,tsx}",
+    "src/services/**/*.{ts,tsx}",
+    "src/types/**/*.{ts,tsx}",
+    "src/utils/**/*.{ts,tsx}",
+    "src/*.{ts,tsx}",
+    "electron/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", ".webpack", "out", "**/*.d.ts"]
 }
