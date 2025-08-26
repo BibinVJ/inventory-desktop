@@ -22,6 +22,8 @@ import { useModal } from '../../hooks/useModal';
 import { Customer, Item } from '../../types';
 import { Plus, Pencil, X } from 'lucide-react';
 import { isApiError } from '../../utils/errors';
+import { printComponent } from '../../../print/utils/printService';
+import InvoiceA4 from '../../../print/invoices/InvoiceA4';
 
 interface SaleItem {
   item_id: string;
@@ -229,8 +231,11 @@ export default function AddSale() {
           sale: result.data,
           customer: customers.find(c => String(c.id) === customerId),
           items: saleItems.filter(item => item.item_id).map(item => ({
-            ...item,
-            name: items.find(i => String(i.id) === item.item_id)?.name || ''
+            quantity: Number(item.quantity),
+            unit_price: Number(item.unit_price),
+            item: {
+              name: items.find(i => String(i.id) === item.item_id)?.name || ''
+            }
           }))
         };
         
@@ -258,33 +263,8 @@ export default function AddSale() {
   };
 
   const printSaleReceipt = async (data: any) => {
-    // This is a placeholder - implement actual PDF generation and printing
-    console.log('Printing receipt for:', data);
-    
-    // For now, just open print dialog with a simple receipt
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head><title>Sale Receipt</title></head>
-          <body>
-            <h2>Sale Receipt</h2>
-            <p>Invoice: ${data.sale.invoice_number}</p>
-            <p>Customer: ${data.customer?.name}</p>
-            <p>Date: ${data.sale.sale_date}</p>
-            <hr>
-            ${data.items.map((item: any) => 
-              `<p>${item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
-            ).join('')}
-            <hr>
-            <p><strong>Grand Total: ${data.sale.total_amount || (data.items.reduce((acc: number, item: any) => acc + (item.quantity * item.unit_price), 0)).toFixed(2)}</strong></p>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
-    }
+    const filename = `${data.sale.invoice_number}-${data.customer?.name?.replace(/[^a-zA-Z0-9]/g, '_') || 'Walk-in'}`;
+    printComponent(InvoiceA4, { data }, filename);
   };
 
   const clearError = (field: string) => {
@@ -371,6 +351,7 @@ export default function AddSale() {
                             type="text"
                             value={items.find(i => String(i.id) === item.item_id)?.name || ''}
                             readOnly
+                            style={{ minWidth: '200px' }}
                           />
                         </TableCell>
                         <TableCell className="px-4 py-3">
@@ -388,6 +369,7 @@ export default function AddSale() {
                             error={!!getErrorMessage(`items.${index}.quantity`)}
                             hint={getErrorMessage(`items.${index}.quantity`)}
                             suffix={item.unit_code}
+                            style={{ minWidth: '100px' }}
                           />
                         </TableCell>
                         <TableCell className="px-4 py-3 align-top">
@@ -397,6 +379,7 @@ export default function AddSale() {
                             onChange={(e) => handleItemChange(index, 'unit_price', Number(e.target.value))}
                             error={!!getErrorMessage(`items.${index}.unit_price`)}
                             hint={getErrorMessage(`items.${index}.unit_price`)}
+                            style={{ minWidth: '120px' }}
                           />
                         </TableCell>
                         <TableCell className="px-4 py-3 text-end">

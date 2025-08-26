@@ -20,6 +20,7 @@ interface InputProps {
   rightIcon?: ReactNode;
   onRightIconClick?: () => void;
   suffix?: string;
+  style?: React.CSSProperties;
 }
 
 const Input: FC<InputProps> = ({
@@ -42,6 +43,7 @@ const Input: FC<InputProps> = ({
   rightIcon,
   onRightIconClick,
   suffix,
+  style,
 }) => {
   let containerClasses = `relative flex items-center h-11 w-full rounded-lg border shadow-theme-xs focus-within:ring-3`;
 
@@ -74,6 +76,7 @@ const Input: FC<InputProps> = ({
           disabled={disabled}
           readOnly={readOnly}
           className={inputClasses}
+          style={style}
         />
         {suffix && (
           <div className="px-2 text-gray-500 text-sm">{suffix}</div>

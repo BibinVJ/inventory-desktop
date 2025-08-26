@@ -60,6 +60,8 @@
     "crypto-browserify": "^3.12.1",
     "css-loader": "^7.1.2",
     "electron": "37.2.6",
+    "electron-builder": "^26.0.12",
+    "electron-updater": "^6.6.2",
     "eslint": "^9.34.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

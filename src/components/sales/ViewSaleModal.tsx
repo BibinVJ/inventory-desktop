@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table'
 import Badge from '../ui/badge/Badge';
 import Button from '../ui/button/Button';
 import { Printer } from 'lucide-react';
+import { printComponent } from '../../../print/utils/printService';
+import InvoiceA4 from '../../../print/invoices/InvoiceA4';
 
 interface ViewSaleModalProps {
   isOpen: boolean;
@@ -37,29 +39,13 @@ export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModal
 
 
   const handlePrint = (sale: Sale) => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head><title>Sale Receipt</title></head>
-          <body>
-            <h2>Sale Receipt</h2>
-            <p>Invoice: ${sale.invoice_number}</p>
-            <p>Customer: ${sale.customer?.name}</p>
-            <p>Date: ${sale.sale_date}</p>
-            <hr>
-            ${sale.items?.map((item: any) => 
-              `<p>${item.item?.name || item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
-            ).join('') || ''}
-            <hr>
-            <p><strong>Grand Total: ${sale.total_amount}</strong></p>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
-    }
+    const printData = {
+      sale: sale,
+      customer: sale.customer,
+      items: sale.items || []
+    };
+    const filename = `${sale.invoice_number}-${sale.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    printComponent(InvoiceA4, { data: printData }, filename);
   };
 
   if (!isOpen) return null;

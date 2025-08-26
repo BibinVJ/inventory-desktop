@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
+import { autoUpdater } from "electron-updater";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -36,6 +37,16 @@ function createWindow() {
   });
 }
 
+function setupAutoUpdate() {
+  autoUpdater.autoDownload = true;
+  autoUpdater.on("update-downloaded", () => {
+    autoUpdater.quitAndInstall();
+  });
+  // only check in production
+  if (!app.isPackaged) return;
+  setTimeout(() => autoUpdater.checkForUpdates(), 5000);
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -67,6 +78,8 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+
+  setupAutoUpdate();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

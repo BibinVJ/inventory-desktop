@@ -14,6 +14,8 @@ import VoidSaleModal from "./VoidSaleModal";
 import ViewSaleModal from "./ViewSaleModal";
 
 import { Sale } from '../../types';
+import { printComponent } from '../../../print/utils/printService';
+import InvoiceA4 from '../../../print/invoices/InvoiceA4';
 
 interface Props {
   data: Sale[];
@@ -45,29 +47,13 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
   };
 
   const handlePrint = (sale: Sale) => {
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head><title>Sale Receipt</title></head>
-          <body>
-            <h2>Sale Receipt</h2>
-            <p>Invoice: ${sale.invoice_number}</p>
-            <p>Customer: ${sale.customer?.name}</p>
-            <p>Date: ${sale.sale_date}</p>
-            <hr>
-            ${sale.items?.map((item: any) => 
-              `<p>${item.item?.name || item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
-            ).join('') || ''}
-            <hr>
-            <p><strong>Grand Total: ${sale.total_amount}</strong></p>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.close();
-    }
+    const printData = {
+      sale: sale,
+      customer: sale.customer,
+      items: sale.items || []
+    };
+    const filename = `${sale.invoice_number}-${sale.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    printComponent(InvoiceA4, { data: printData }, filename);
   };
 
   const handleCloseVoidModal = () => {
