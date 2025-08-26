@@ -7,7 +7,7 @@ import {
 } from "../ui/table";
 import { useState } from "react";
 import Badge from "../ui/badge/Badge";
-import { ChevronsUpDown, ArrowUpWideNarrow, ArrowDownNarrowWide, Trash2Icon, ViewIcon } from 'lucide-react';
+import { ChevronsUpDown, ArrowUpWideNarrow, ArrowDownNarrowWide, Trash2Icon, ViewIcon, Printer } from 'lucide-react';
 import Button from "../ui/button/Button";
 import Tooltip from "../ui/tooltip/Tooltip";
 import VoidSaleModal from "./VoidSaleModal";
@@ -42,6 +42,32 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
   const handleDelete = (sale: Sale) => {
     setSelectedSale(sale);
     setIsVoidModalOpen(true);
+  };
+
+  const handlePrint = (sale: Sale) => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>Sale Receipt</title></head>
+          <body>
+            <h2>Sale Receipt</h2>
+            <p>Invoice: ${sale.invoice_number}</p>
+            <p>Customer: ${sale.customer?.name}</p>
+            <p>Date: ${sale.sale_date}</p>
+            <hr>
+            ${sale.items?.map((item: any) => 
+              `<p>${item.item?.name || item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
+            ).join('') || ''}
+            <hr>
+            <p><strong>Grand Total: ${sale.total_amount}</strong></p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    }
   };
 
   const handleCloseVoidModal = () => {
@@ -111,6 +137,15 @@ export default function SaleTable({ data, onAction, onSort, sortBy, sortDirectio
                         </Button>
                       </Tooltip>
                     )}
+                    <Tooltip text="Print">
+                      <Button
+                        size="xs"
+                        onClick={() => handlePrint(sale)}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Printer className="w-4 h-4" />
+                      </Button>
+                    </Tooltip>
                     {hasPermission("delete-sale") && (
                       <Tooltip text="Void">
                         <Button

@@ -3,6 +3,8 @@ import { Sale } from '../../types';
 import { getSale } from '../../services/SaleService';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import Badge from '../ui/badge/Badge';
+import Button from '../ui/button/Button';
+import { Printer } from 'lucide-react';
 
 interface ViewSaleModalProps {
   isOpen: boolean;
@@ -34,6 +36,32 @@ export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModal
 
 
 
+  const handlePrint = (sale: Sale) => {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>Sale Receipt</title></head>
+          <body>
+            <h2>Sale Receipt</h2>
+            <p>Invoice: ${sale.invoice_number}</p>
+            <p>Customer: ${sale.customer?.name}</p>
+            <p>Date: ${sale.sale_date}</p>
+            <hr>
+            ${sale.items?.map((item: any) => 
+              `<p>${item.item?.name || item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
+            ).join('') || ''}
+            <hr>
+            <p><strong>Grand Total: ${sale.total_amount}</strong></p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -43,14 +71,26 @@ export default function ViewSaleModal({ isOpen, onClose, saleId }: ViewSaleModal
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
             {sale ? `Sale #${sale.invoice_number}` : 'Sale Details'}
           </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-2">
+            {sale && (
+              <Button
+                size="sm"
+                onClick={() => handlePrint(sale)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print
+              </Button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div className="p-6">

@@ -101,6 +101,9 @@ export default function AddSale() {
       } else {
         setSaleItems(prevItems => [...prevItems, newItem]);
       }
+      
+      // Clear the 'items' error when an item is added
+      clearError('items');
     } catch (error) {
       console.error('Error fetching item details:', error);
       toast.error('Failed to add item.');
@@ -167,25 +170,25 @@ export default function AddSale() {
     }
 
     saleItems.forEach((item, index) => {
-      if (!item.item_id) newErrors[`items.${index}.item_id`] = ['Item is required.'];
-      if (item.quantity <= 0) newErrors[`items.${index}.quantity`] = ['Quantity must be greater than 0.'];
-      if (item.quantity > item.stock_on_hand) newErrors[`items.${index}.quantity`] = [`Available stock ${item.stock_on_hand}.`];
-      if (item.unit_price < 0) newErrors[`items.${index}.unit_price`] = ['Unit price cannot be negative.'];
+      if (item.item_id) { // Only validate if item is selected
+        if (item.quantity <= 0) newErrors[`items.${index}.quantity`] = ['Quantity must be greater than 0.'];
+        if (item.quantity > item.stock_on_hand) newErrors[`items.${index}.quantity`] = [`Available stock ${item.stock_on_hand}.`];
+        if (item.unit_price < 0) newErrors[`items.${index}.unit_price`] = ['Unit price cannot be negative.'];
+      }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveSale = async () => {
     if (!validateForm()) {
       toast.error('Please correct the errors');
-      return;
+      return null;
     }
 
     try {
-      await addSale({
+      const response = await addSale({
         customer_id: customerId,
         invoice_number: invoiceNumber,
         sale_date: saleDate,
@@ -196,7 +199,7 @@ export default function AddSale() {
         items: saleItems.map(({ unit_code: _, ...item }) => item),
       });
       toast.success('Sale created successfully');
-      navigate('/sales');
+      return response;
     } catch (error: unknown) {
       if (isApiError(error) && error.response?.status === 422) {
         setErrors(error.response.data.errors || {});
@@ -205,6 +208,82 @@ export default function AddSale() {
         console.error('Error creating sale:', error);
         toast.error('Failed to create sale');
       }
+      return null;
+    }
+  };
+
+  const handleSave = async () => {
+    const result = await saveSale();
+    if (result) {
+      // Reset form for new sale
+      resetForm();
+    }
+  };
+
+  const handleSaveAndPrint = async () => {
+    const result = await saveSale();
+    if (result) {
+      // Generate and print PDF
+      try {
+        const printData = {
+          sale: result.data,
+          customer: customers.find(c => String(c.id) === customerId),
+          items: saleItems.filter(item => item.item_id).map(item => ({
+            ...item,
+            name: items.find(i => String(i.id) === item.item_id)?.name || ''
+          }))
+        };
+        
+        // Call print function
+        await printSaleReceipt(printData);
+        // Reset form for new sale
+        resetForm();
+      } catch (error) {
+        console.error('Error printing receipt:', error);
+        toast.error('Sale saved but printing failed');
+        // Reset form anyway
+        resetForm();
+      }
+    }
+  };
+
+  const resetForm = () => {
+    setCustomerId('');
+    setSelectedCustomer(null);
+    setSaleItems([{ item_id: '', quantity: 1, unit_price: 0, description: '', stock_on_hand: 0, unit_code: '' }]);
+    setNote('');
+    setErrors({});
+    // Get new invoice number
+    fetchInitialData();
+  };
+
+  const printSaleReceipt = async (data: any) => {
+    // This is a placeholder - implement actual PDF generation and printing
+    console.log('Printing receipt for:', data);
+    
+    // For now, just open print dialog with a simple receipt
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head><title>Sale Receipt</title></head>
+          <body>
+            <h2>Sale Receipt</h2>
+            <p>Invoice: ${data.sale.invoice_number}</p>
+            <p>Customer: ${data.customer?.name}</p>
+            <p>Date: ${data.sale.sale_date}</p>
+            <hr>
+            ${data.items.map((item: any) => 
+              `<p>${item.name} - Qty: ${item.quantity} - Price: ${item.unit_price} - Total: ${(item.quantity * item.unit_price).toFixed(2)}</p>`
+            ).join('')}
+            <hr>
+            <p><strong>Grand Total: ${data.sale.total_amount || (data.items.reduce((acc: number, item: any) => acc + (item.quantity * item.unit_price), 0)).toFixed(2)}</strong></p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+      printWindow.close();
     }
   };
 
@@ -247,7 +326,7 @@ export default function AddSale() {
         description="Add a new sale"
       />
       <div className="px-6 py-5">
-        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+        <form className="flex flex-col md:flex-row gap-6">
 
           {/* LEFT SECTION (Items) */}
           <div className="flex-1 overflow-y-auto max-h-[80vh] pr-2">
@@ -446,10 +525,10 @@ export default function AddSale() {
                 onChange={setPaymentMethod}
               />
               <div className="flex justify-end gap-3 w-full">
-                <Button type="button" variant="outline" className='w-full'>
+                <Button type="button" variant="outline" className='w-full' onClick={handleSave}>
                   Save
                 </Button>
-                <Button type="submit" className='w-full'>
+                <Button type="button" className='w-full' onClick={handleSaveAndPrint}>
                   Save & Print
                 </Button>
               </div>
