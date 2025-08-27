@@ -14,10 +14,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-    
-    env:
-      API_BASE_URL: http://localhost:8000/api
-      NODE_ENV: production
 
     steps:
       - name: Checkout code
