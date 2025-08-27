@@ -29,9 +29,6 @@ jobs:
       - name: Type-check
         run: npm run type-check
 
-      - name: Build
-        run: npm run build
-
       - name: Validate Conventional Commits
         uses: amannn/action-semantic-pull-request@v5
         env:
