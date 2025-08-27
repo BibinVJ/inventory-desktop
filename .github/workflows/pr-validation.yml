@@ -9,17 +9,10 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
-    env:
-      API_BASE_URL: http://localhost:8000/api
-      NODE_ENV: production
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run Linter
         run: npm run lint
@@ -36,29 +29,7 @@ jobs:
       - name: Type-check
         run: npm run type-check
 
-      - name: Check for Packaging Changes
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-            
-            const packagingFiles = files.filter(file => 
-              file.filename.includes('package.json') ||
-              file.filename.includes('forge.config') ||
-              file.filename.includes('webpack') ||
-              file.filename.includes('electron/')
-            );
-            
-            if (packagingFiles.length > 0) {
-              core.notice(`This PR modifies packaging-related files. Consider running the Package Test workflow manually to verify packaging works correctly.`);
-            }
-
       - name: Validate Conventional Commits
         uses: amannn/action-semantic-pull-request@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
- 
