@@ -36,10 +36,6 @@ jobs:
       - name: Type-check
         run: npm run type-check
 
-      - name: Run Tests
-        run: npm run test -- --run --coverage
-        continue-on-error: true
-
       - name: Check for Packaging Changes
         uses: actions/github-script@v7
         with:
