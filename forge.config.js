@@ -7,6 +7,7 @@ module.exports = {
   packagerConfig: {
     asar: true,
     icon: 'assets/icons/icon.png',
+    executableName: 'inventory-manager',
   },
   rebuildConfig: {},
   makers: [
