@@ -1,13 +1,13 @@
 const { app, BrowserWindow, ipcMain, session } = require('electron');
-import { autoUpdater } from "electron-updater";
+const path = require('path');
+
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 function createWindow() {
   // Create the browser window.
@@ -38,6 +38,7 @@ function createWindow() {
 }
 
 function setupAutoUpdate() {
+  const { autoUpdater } = require('electron-updater');
   autoUpdater.autoDownload = true;
   autoUpdater.on("update-downloaded", () => {
     autoUpdater.quitAndInstall();
