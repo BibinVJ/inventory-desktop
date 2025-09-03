@@ -7,12 +7,16 @@ module.exports = {
   },
   files: [
     'dist/**/*',
-    'package.json',
-    'node_modules/**/*'
+    'package.json'
   ],
   extraMetadata: {
     main: 'dist/main.js'
   },
+  asar: true,
+  asarUnpack: [
+    '**/node_modules/sqlite3/**/*',
+    '**/node_modules/better-sqlite3/**/*'
+  ],
   publish: [
     {
       provider: 'github',
@@ -37,7 +41,10 @@ module.exports = {
       }
     ],
     icon: 'assets/icons/icon.png',
-    category: 'public.app-category.business'
+    category: 'public.app-category.business',
+    hardenedRuntime: true,
+    entitlements: 'build/entitlements.mac.plist',
+    entitlementsInherit: 'build/entitlements.mac.plist'
   },
   linux: {
     target: [
@@ -48,6 +55,10 @@ module.exports = {
       {
         target: 'deb',
         arch: ['x64']
+      },
+      {
+        target: 'rpm',
+        arch: ['x64']
       }
     ],
     icon: 'assets/icons/icon.png',
@@ -57,6 +68,22 @@ module.exports = {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     createDesktopShortcut: true,
-    createStartMenuShortcut: true
+    createStartMenuShortcut: true,
+    installerIcon: 'assets/icons/icon.png',
+    uninstallerIcon: 'assets/icons/icon.png'
+  },
+  dmg: {
+    contents: [
+      {
+        x: 130,
+        y: 220
+      },
+      {
+        x: 410,
+        y: 220,
+        type: 'link',
+        path: '/Applications'
+      }
+    ]
   }
 };

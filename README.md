@@ -25,9 +25,9 @@ yarn install
 
 ### 2. Start Development Server:
 ```bash
+npm run dev
+# or for production build
 npm start
-# or
-yarn start
 ```
 
 
@@ -103,7 +103,7 @@ desktop/
 │
 ├── shared/                  # Shared types/helpers
 │
-├── forge.config.js          # Electron Forge config
+├── electron-builder.config.js  # Electron Builder config
 ├── package.json
 ├── vite.config.ts           # Vite config for React
 └── tsconfig.json

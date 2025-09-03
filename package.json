@@ -2,105 +2,27 @@
   "name": "inventory-manager",
   "productName": "Inventory Manager",
   "version": "1.0.0",
-  "description": "My Electron application description",
-  "main": ".webpack/main",
+  "description": "POS for inventory manager",
+  "main": "main-simple.js",
   "scripts": {
-    "start": "electron-forge start",
-    "build:prod": "tsc && vite build",
+    "start": "npx electron .",
+    "dev": "concurrently \"tsc -p tsconfig.electron.json --watch\" \"vite\" \"wait-on dist/main.js && npx cross-env NODE_ENV=development npx electron .\"",
+    "build:prod": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
+    "build": "npm run build:prod && npm run build:electron",
     "lint": "eslint .",
     "type-check": "tsc --noEmit",
-    "package": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js --dir",
-    "dist": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js",
-    "dist:win": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js --win",
-    "dist:mac": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js --mac",
-    "dist:linux": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js --linux",
-    "publish": "npm run build:prod && npm run build:electron && electron-builder --config electron-builder.config.js --publish always"
+    "package": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:win": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:linux": "npm run build && electron-builder --linux",
+    "publish": "npm run build && electron-builder --publish always"
   },
   "keywords": [],
   "author": {
     "name": "bibin francis",
     "email": "bibinfrancis3937@gmail.com"
-  },
-  "build": {
-    "appId": "com.bibin.inventorymanager",
-    "productName": "Inventory Manager",
-    "files": [
-      "dist/**/*",
-      "package.json",
-      "node_modules/**/*"
-    ],
-    "extraMetadata": {
-      "main": "dist/main.js"
-    },
-    "directories": {
-      "buildResources": "build",
-      "output": "release"
-    },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "bibin",
-        "repo": "inventory-manager"
-      }
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64"]
-        }
-      ],
-      "icon": "assets/icons/icon.png"
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": ["x64", "arm64"]
-        }
-      ],
-      "icon": "assets/icons/icon.png",
-      "category": "public.app-category.business"
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": ["x64"]
-        },
-        {
-          "target": "deb",
-          "arch": ["x64"]
-        },
-        {
-          "target": "rpm",
-          "arch": ["x64"]
-        }
-      ],
-      "icon": "assets/icons/icon.png",
-      "category": "Office"
-    },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
-    },
-    "dmg": {
-      "contents": [
-        {
-          "x": 130,
-          "y": 220
-        },
-        {
-          "x": 410,
-          "y": 220,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
-    }
   },
   "license": "MIT",
   "dependencies": {
@@ -123,46 +45,33 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@electron-forge/cli": "^7.8.3",
-    "@electron-forge/maker-deb": "^7.8.3",
-    "@electron-forge/maker-rpm": "^7.8.3",
-    "@electron-forge/maker-squirrel": "^7.8.3",
-    "@electron-forge/maker-zip": "^7.8.3",
-    "@electron-forge/plugin-auto-unpack-natives": "^7.8.3",
-    "@electron-forge/plugin-fuses": "^7.8.3",
-    "@electron-forge/plugin-webpack": "^7.8.3",
-    "@electron/fuses": "^1.8.0",
     "@eslint/js": "^9.34.0",
-    "@svgr/webpack": "^8.1.0",
     "@types/nprogress": "^0.2.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
     "cross-env": "^10.0.0",
     "crypto-browserify": "^3.12.1",
-    "css-loader": "^7.1.2",
-    "electron": "37.2.6",
+    "electron": "^38.0.0",
     "electron-builder": "^26.0.12",
     "electron-updater": "^6.6.2",
     "eslint": "^9.34.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
-    "file-loader": "^6.2.0",
     "globals": "^16.3.0",
     "lightningcss": "^1.30.1",
-    "node-loader": "^2.1.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "postcss": "^8.5.6",
-    "postcss-loader": "^8.1.1",
     "stream-browserify": "^3.0.0",
-    "style-loader": "^4.0.0",
     "tailwindcss": "^3.4.17",
-    "ts-loader": "^9.5.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0",
     "vite": "^5.4.19",
-    "vm-browserify": "^1.1.2"
+    "vite-plugin-svgr": "^4.5.0",
+    "vm-browserify": "^1.1.2",
+    "wait-on": "^8.0.4"
   }
 }
