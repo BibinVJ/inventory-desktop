@@ -6,13 +6,15 @@ module.exports = {
     buildResources: 'build'
   },
   files: [
-    'dist/**/*',
-    'package.json'
+    'main.js',
+    'package.json',
+    'dist/renderer/**/*'
   ],
+  afterPack: "./scripts/afterPack.js",
   extraMetadata: {
-    main: 'dist/main.js'
+    main: 'main.js'
   },
-  asar: true,
+  asar: false,
   asarUnpack: [
     '**/node_modules/sqlite3/**/*',
     '**/node_modules/better-sqlite3/**/*'

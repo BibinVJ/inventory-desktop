@@ -1,8 +1,12 @@
-const { app, BrowserWindow } = require('electron');
+const electron = require('electron');
 const path = require('path');
 
+const { app, BrowserWindow } = electron;
+
+let mainWindow: any;
+
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -13,10 +17,19 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'renderer/src/index.html'));
-  mainWindow.webContents.openDevTools();
+
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
