@@ -2,22 +2,26 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
-      - staging
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   release:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win
+          - os: macos-latest
+            platform: mac
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # required for semantic-release to read tags
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,24 +32,42 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 🔥 semantic-release will bump version + create GitHub Release
-      - name: Run semantic-release
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          semantic_version: 21
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Application
+        run: npm run build
 
-      # 🔥 build + publish app installers to the GitHub Release
-      - name: Build & Publish App
-        run: npm run release
+      - name: Build & Release for Linux
+        if: matrix.platform == 'linux'
+        run: npm run dist:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # add your signing secrets if you have them
+
+      - name: Build & Release for Windows
+        if: matrix.platform == 'win'
+        run: npm run dist:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      - name: Build & Release for macOS
+        if: matrix.platform == 'mac'
+        run: npm run dist:mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           ASC_PROVIDER: ${{ secrets.ASC_PROVIDER }}
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_PASSWORD }}
+
+      - name: Upload Release Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+          retention-days: 30
