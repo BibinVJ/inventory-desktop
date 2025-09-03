@@ -1,14 +1,16 @@
-const electron = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
-
-const { app, BrowserWindow } = electron;
 
 let mainWindow: any;
 
 function createWindow() {
+  const WINDOW_WIDTH = 1600;
+  const WINDOW_HEIGHT = 900;
+
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+    resizable: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -16,9 +18,26 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, 'renderer/src/index.html'));
+  const isDev = process.env.NODE_ENV === 'development';
 
-  if (process.env.NODE_ENV === 'development') {
+  if (isDev) {
+    mainWindow.loadURL('http://localhost:5173');
+    // Enable hot reload for development
+    mainWindow.webContents.on('did-frame-finish-load', () => {
+      if (isDev) {
+        mainWindow.webContents.once('devtools-opened', () => {
+          mainWindow.focus();
+        });
+      }
+    });
+  } else {
+    // In packaged app, files are in the root
+    const indexPath = path.join(__dirname, 'renderer', 'src', 'index.html');
+    mainWindow.loadFile(indexPath);
+  }
+
+  // Open dev tools only when running npm start (not in packaged app)
+  if (isDev || process.argv.includes('--dev-tools')) {
     mainWindow.webContents.openDevTools();
   }
 
@@ -28,6 +47,10 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  // Suppress graphics warnings
+  app.commandLine.appendSwitch('--disable-gpu-vsync');
+  app.commandLine.appendSwitch('--disable-features', 'VizDisplayCompositor');
+
   createWindow();
 });
 

@@ -6,14 +6,13 @@ module.exports = {
     buildResources: 'build'
   },
   files: [
-    'main.js',
-    'package.json',
-    'dist/renderer/**/*'
+    'dist/**/*',
+    'package.json'
   ],
-  afterPack: "./scripts/afterPack.js",
   extraMetadata: {
-    main: 'main.js'
+    main: 'dist/main.js'
   },
+  buildDependenciesFromSource: false,
   asar: false,
   asarUnpack: [
     '**/node_modules/sqlite3/**/*',
@@ -64,7 +63,8 @@ module.exports = {
       }
     ],
     icon: 'assets/icons/icon.png',
-    category: 'Office'
+    category: 'Office',
+    asar: false
   },
   nsis: {
     oneClick: false,
