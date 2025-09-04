@@ -23,6 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create .env file
+        run: |
+          if [[ "${{ github.ref }}" == "refs/tags/"*"-rc."* ]]; then
+            echo "${{ secrets.DESKTOP_ENV_STAGING }}" > .env
+          else
+            echo "${{ secrets.DESKTOP_ENV_MAIN }}" > .env
+          fi
+
       - name: Build Application
         run: npm run build
 
@@ -32,6 +40,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.AppImage
+            release/*.deb
+            release/*.rpm
+            release/linux-unpacked/**
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
@@ -40,4 +61,5 @@ jobs:
             release/*.AppImage
             release/*.deb
             release/*.rpm
+            release/linux-unpacked/**
           retention-days: 30
