@@ -7,10 +7,11 @@ module.exports = {
   },
   files: [
     'dist/**/*',
+    'main.js',
     'package.json'
   ],
   extraMetadata: {
-    main: 'dist/main.js'
+    main: 'main.js'
   },
   buildDependenciesFromSource: false,
   asar: false,
@@ -31,8 +32,7 @@ module.exports = {
         target: 'nsis',
         arch: ['x64']
       }
-    ],
-    icon: 'assets/icons/icon.png'
+    ]
   },
   mac: {
     target: [
@@ -41,7 +41,7 @@ module.exports = {
         arch: ['x64', 'arm64']
       }
     ],
-    icon: 'assets/icons/icon.png',
+
     category: 'public.app-category.business',
     hardenedRuntime: true,
     entitlements: 'build/entitlements.mac.plist',
@@ -62,7 +62,6 @@ module.exports = {
         arch: ['x64']
       }
     ],
-    icon: 'assets/icons/icon.png',
     category: 'Office',
     asar: false
   },
