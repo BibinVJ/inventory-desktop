@@ -56,9 +56,6 @@ module.exports = {
     category: 'Office',
     asar: false
   },
-  appImage: {
-    license: 'LICENSE'
-  },
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
