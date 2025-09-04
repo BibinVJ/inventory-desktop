@@ -6,14 +6,14 @@ module.exports = {
     buildResources: 'build'
   },
   files: [
+    'dist/**/*',
     'main.js',
-    'package.json',
-    'dist/renderer/**/*'
+    'package.json'
   ],
-  afterPack: "./scripts/afterPack.js",
   extraMetadata: {
     main: 'main.js'
   },
+  buildDependenciesFromSource: false,
   asar: false,
   asarUnpack: [
     '**/node_modules/sqlite3/**/*',
@@ -32,8 +32,7 @@ module.exports = {
         target: 'nsis',
         arch: ['x64']
       }
-    ],
-    icon: 'assets/icons/icon.png'
+    ]
   },
   mac: {
     target: [
@@ -42,7 +41,7 @@ module.exports = {
         arch: ['x64', 'arm64']
       }
     ],
-    icon: 'assets/icons/icon.png',
+
     category: 'public.app-category.business',
     hardenedRuntime: true,
     entitlements: 'build/entitlements.mac.plist',
@@ -63,8 +62,8 @@ module.exports = {
         arch: ['x64']
       }
     ],
-    icon: 'assets/icons/icon.png',
-    category: 'Office'
+    category: 'Office',
+    asar: false
   },
   nsis: {
     oneClick: false,

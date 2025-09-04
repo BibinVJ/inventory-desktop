@@ -1,64 +1,51 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const fs = require('fs');
+try {
+  const { app, BrowserWindow } = require('electron');
+  const path = require('path');
 
-function createWindow() {
-  const mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
+  let mainWindow = null;
+
+  function createWindow() {
+    mainWindow = new BrowserWindow({
+      width: 1600,
+      height: 900,
+      resizable: true,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
+
+    const isDev = process.env.NODE_ENV === 'development';
+    
+    if (isDev) {
+      mainWindow.loadURL('http://localhost:5173');
+      mainWindow.webContents.openDevTools();
+    } else {
+      mainWindow.loadFile(path.join(__dirname, 'dist/renderer/index.html'));
+    }
+
+    mainWindow.on('closed', () => {
+      mainWindow = null;
+    });
+  }
+
+  app.whenReady().then(() => {
+    createWindow();
+  });
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit();
     }
   });
 
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.loadURL('http://localhost:5173');
-  } else {
-    // Try different paths for packaged app
-    let indexPath;
-    const possiblePaths = [
-      path.join(__dirname, 'dist', 'renderer', 'src', 'index.html'), // Development
-      path.join(process.resourcesPath, 'app', 'dist', 'renderer', 'src', 'index.html'), // Packaged
-      path.join(__dirname, 'dist', 'renderer', 'src', 'index.html') // Alternative
-    ];
-    
-    for (const testPath of possiblePaths) {
-      if (fs.existsSync(testPath)) {
-        indexPath = testPath;
-        break;
-      }
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
     }
-    
-    if (indexPath) {
-      mainWindow.loadFile(indexPath);
-    } else {
-      // Fallback: try test file or simple HTML
-      const testPath = path.join(process.resourcesPath, 'app', 'test-index.html');
-      if (fs.existsSync(testPath)) {
-        mainWindow.loadFile(testPath);
-      } else {
-        mainWindow.loadURL('data:text/html,<h1>App loaded successfully!</h1><p>React app not found</p>');
-      }
-    }
-  }
-  
-  // Only open dev tools in development
-  if (process.env.NODE_ENV === 'development') {
-    mainWindow.webContents.openDevTools();
-  }
+  });
+
+} catch (error) {
+  console.error('Failed to load Electron:', error);
+  process.exit(1);
 }
-
-app.whenReady().then(createWindow);
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
-});

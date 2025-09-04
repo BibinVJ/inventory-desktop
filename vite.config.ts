@@ -8,16 +8,14 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   return {
+  root: 'src',
   plugins: [react(), svgr()],
   css: {
     postcss: './postcss.config.js',
   },
   base: "./",
   build: {
-    outDir: "dist/renderer",
-    rollupOptions: {
-      input: resolve(__dirname, "src/index.html")
-    }
+    outDir: "../dist/renderer"
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),

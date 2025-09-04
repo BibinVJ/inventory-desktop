@@ -382,7 +382,7 @@ export default function AddSale() {
                             style={{ minWidth: '120px' }}
                           />
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-end">
+                        <TableCell className="px-4 py-3 text-end dark:text-gray-400">
                           <span className="font-bold">
                             {(item.quantity * item.unit_price).toFixed(2)}
                           </span>
