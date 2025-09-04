@@ -19,13 +19,7 @@ module.exports = {
     '**/node_modules/sqlite3/**/*',
     '**/node_modules/better-sqlite3/**/*'
   ],
-  publish: [
-    {
-      provider: 'github',
-      owner: 'bibin',
-      repo: 'inventory-manager'
-    }
-  ],
+
   win: {
     target: [
       {
