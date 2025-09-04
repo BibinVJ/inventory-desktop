@@ -38,12 +38,14 @@ jobs:
       - name: Build & Release for Linux
         if: matrix.platform == 'linux'
         run: npm run dist:linux
+        timeout-minutes: 15
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Release for Windows
         if: matrix.platform == 'win'
         run: npm run dist:win
+        timeout-minutes: 15
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
@@ -52,6 +54,7 @@ jobs:
       - name: Build & Release for macOS
         if: matrix.platform == 'mac'
         run: npm run dist:mac
+        timeout-minutes: 15
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -65,9 +68,9 @@ jobs:
         with:
           name: release-${{ matrix.platform }}
           path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.rpm
+            release/*.exe
+            release/*.dmg
+            release/*.AppImage
+            release/*.deb
+            release/*.rpm
           retention-days: 30
