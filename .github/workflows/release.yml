@@ -42,6 +42,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create unpacked zip
+        run: |
+          cd release
+          zip -r linux-unpacked.zip linux-unpacked/
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -49,9 +54,9 @@ jobs:
             release/*.AppImage
             release/*.deb
             release/*.rpm
-            release/linux-unpacked/**
+            release/linux-unpacked.zip
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref, '-rc.') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
