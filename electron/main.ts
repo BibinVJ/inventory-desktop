@@ -1,15 +1,13 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+import { app, BrowserWindow, session } from 'electron';
+import * as path from 'path';
+import * as isDev from 'electron-is-dev';
 
 let mainWindow: any;
 
 function createWindow() {
-  const WINDOW_WIDTH = 1600;
-  const WINDOW_HEIGHT = 900;
-
   mainWindow = new BrowserWindow({
-    width: WINDOW_WIDTH,
-    height: WINDOW_HEIGHT,
+    width: 1600,
+    height: 900,
     resizable: true,
     webPreferences: {
       nodeIntegration: false,
@@ -18,32 +16,38 @@ function createWindow() {
     }
   });
 
-  const isDev = process.env.NODE_ENV === 'development';
-
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
-    // Enable hot reload for development
-    mainWindow.webContents.on('did-frame-finish-load', () => {
-      if (isDev) {
-        mainWindow.webContents.once('devtools-opened', () => {
-          mainWindow.focus();
-        });
-      }
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data: http://localhost:5173; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:5173"
+          ]
+        }
+      });
     });
-  } else {
-    // In packaged app, files are in the root
-    const indexPath = path.join(__dirname, 'renderer', 'src', 'index.html');
-    mainWindow.loadFile(indexPath);
-  }
 
-  // Open dev tools only when running npm start (not in packaged app)
-  if (isDev || process.argv.includes('--dev-tools')) {
+    mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
+  } else {
+    mainWindow.loadFile(path.join(__dirname, '../dist/renderer/index.html'));
   }
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details: any, callback: (arg0: { responseHeaders: { [x: string]: any; 'Content-Security-Policy'?: string[] | undefined; }; }) => void) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': ['default-src \'self\' http://localhost:5173; script-src \'self\' http://localhost:5173 \'unsafe-inline\'; style-src \'self\' http://localhost:5173 \'unsafe-inline\';']
+        }
+      });
+    }
+  );
 }
 
 app.whenReady().then(() => {
