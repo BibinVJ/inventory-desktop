@@ -8,16 +8,7 @@ on:
 
 jobs:
   release:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux
-          - os: windows-latest
-            platform: win
-          - os: macos-latest
-            platform: mac
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -36,40 +27,16 @@ jobs:
         run: npm run build
 
       - name: Build & Release for Linux
-        if: matrix.platform == 'linux'
         run: npm run dist:linux
         timeout-minutes: 15
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Release for Windows
-        if: matrix.platform == 'win'
-        run: npm run dist:win
-        timeout-minutes: 15
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-
-      - name: Build & Release for macOS
-        if: matrix.platform == 'mac'
-        run: npm run dist:mac
-        timeout-minutes: 15
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          ASC_PROVIDER: ${{ secrets.ASC_PROVIDER }}
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_PASSWORD }}
-
       - name: Upload Release Assets
         uses: actions/upload-artifact@v4
         with:
-          name: release-${{ matrix.platform }}
+          name: release-linux
           path: |
-            release/*.exe
-            release/*.dmg
             release/*.AppImage
             release/*.deb
             release/*.rpm
