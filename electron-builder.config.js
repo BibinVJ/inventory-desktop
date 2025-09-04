@@ -41,11 +41,7 @@ module.exports = {
         arch: ['x64', 'arm64']
       }
     ],
-
-    category: 'public.app-category.business',
-    hardenedRuntime: true,
-    entitlements: 'build/entitlements.mac.plist',
-    entitlementsInherit: 'build/entitlements.mac.plist'
+    category: 'public.app-category.business'
   },
   linux: {
     target: [
@@ -69,9 +65,7 @@ module.exports = {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     createDesktopShortcut: true,
-    createStartMenuShortcut: true,
-    installerIcon: 'assets/icons/icon.png',
-    uninstallerIcon: 'assets/icons/icon.png'
+    createStartMenuShortcut: true
   },
   dmg: {
     contents: [
