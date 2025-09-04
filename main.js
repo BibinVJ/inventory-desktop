@@ -1,10 +1,12 @@
 try {
-  const { app, BrowserWindow } = require('electron');
+  const { app, BrowserWindow, Menu } = require('electron');
   const path = require('path');
 
   let mainWindow = null;
 
   function createWindow() {
+    const isDev = process.env.NODE_ENV === 'development';
+
     mainWindow = new BrowserWindow({
       width: 1600,
       height: 900,
@@ -15,8 +17,6 @@ try {
       }
     });
 
-    const isDev = process.env.NODE_ENV === 'development';
-    
     if (isDev) {
       mainWindow.loadURL('http://localhost:5173');
       mainWindow.webContents.openDevTools();
@@ -24,12 +24,58 @@ try {
       mainWindow.loadFile(path.join(__dirname, 'dist/renderer/index.html'));
     }
 
+    // Disable Ctrl+R refresh
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (input.control && input.key.toLowerCase() === 'r') {
+        event.preventDefault();
+      }
+    });
+
     mainWindow.on('closed', () => {
       mainWindow = null;
     });
   }
 
   app.whenReady().then(() => {
+    // Create custom menu without reload options
+    const template = [
+      {
+        label: 'File',
+        submenu: [
+          { role: 'quit' }
+        ]
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectall' }
+        ]
+      },
+      {
+        label: 'View',
+        submenu: [
+          { role: 'togglefullscreen' },
+          { role: 'toggledevtools' }
+        ]
+      },
+      {
+        label: 'Window',
+        submenu: [
+          { role: 'minimize' },
+          { role: 'close' }
+        ]
+      }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
+    
     createWindow();
   });
 
