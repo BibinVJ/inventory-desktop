@@ -42,10 +42,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Make AppImage executable and create unpacked zip
+      - name: Make AppImage executable and create archives
         run: |
           chmod +x release/*.AppImage
           cd release
+          # Create tar.gz for AppImage to preserve permissions
+          tar -czf inventory-manager-appimage.tar.gz *.AppImage
+          # Create zip for unpacked folder
           zip -r linux-unpacked.zip linux-unpacked/
 
       - name: Create GitHub Release
@@ -53,6 +56,7 @@ jobs:
         with:
           files: |
             release/*.AppImage
+            release/inventory-manager-appimage.tar.gz
             release/*.deb
             release/*.rpm
             release/linux-unpacked.zip
