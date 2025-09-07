@@ -54,7 +54,39 @@ module.exports = {
       }
     ],
     category: 'Office',
-    asar: false
+    description: 'A comprehensive inventory management system with POS capabilities',
+    synopsis: 'Inventory Management System',
+    executableName: 'inventory-manager',
+    desktop: {
+      entry: {
+        Name: 'Inventory Manager',
+        Comment: 'A comprehensive inventory management system with POS capabilities',
+        Icon: 'inventory-manager',
+        Type: 'Application',
+        Categories: 'Office;Finance;Business;'
+      }
+    },
+    icon: 'build/icon.png'
+  },
+  deb: {
+    depends: [
+      'libgtk-3-0',
+      'libnotify4', 
+      'libnss3',
+      'libxss1',
+      'libxtst6',
+      'xdg-utils',
+      'libatspi2.0-0',
+      'libuuid1',
+      'libsecret-1-0'
+    ],
+    recommends: [
+      'libappindicator3-1'
+    ],
+    priority: 'optional',
+    category: 'office',
+    afterInstall: 'build/deb-postinst.sh',
+    afterRemove: 'build/deb-postrm.sh'
   },
   nsis: {
     oneClick: false,

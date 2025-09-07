@@ -2,6 +2,12 @@ try {
   const { app, BrowserWindow, Menu } = require('electron');
   const path = require('path');
 
+  // Fix for trace/breakpoint trap on Linux
+  if (process.platform === 'linux') {
+    app.commandLine.appendSwitch('--no-sandbox');
+    app.commandLine.appendSwitch('--disable-seccomp-filter-sandbox');
+  }
+
   let mainWindow = null;
 
   function createWindow() {
