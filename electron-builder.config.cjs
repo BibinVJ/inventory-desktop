@@ -7,11 +7,10 @@ module.exports = {
   },
   files: [
     'dist/**/*',
-    'electron/main.ts',
     'package.json'
   ],
   extraMetadata: {
-    main: 'electron/main.ts'
+    main: 'dist/main.js'
   },
   buildDependenciesFromSource: false,
   asar: true,
