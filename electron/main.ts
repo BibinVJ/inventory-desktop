@@ -1,8 +1,13 @@
-import { app, BrowserWindow, session } from 'electron';
-import * as path from 'path';
-import * as isDev from 'electron-is-dev';
+import { app, BrowserWindow, Menu } from "electron";
+import * as path from "path";
+import * as url from "url";
+import { fileURLToPath } from "url";
 
-let mainWindow: any;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+let mainWindow: BrowserWindow | null = null;
+const isDev = process.env.NODE_ENV === "development";
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -12,59 +17,76 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js')
-    }
+    },
   });
 
   if (isDev) {
-    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Content-Security-Policy': [
-            "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data: http://localhost:5173; style-src 'self' 'unsafe-inline'; connect-src 'self' http://localhost:5173"
-          ]
-        }
-      });
-    });
-
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/renderer/index.html'));
+    mainWindow.loadURL(
+      url.format({
+        pathname: path.join(__dirname, "renderer/index.html"),
+        protocol: "file:",
+        slashes: true,
+      })
+    );
   }
 
-  mainWindow.on('closed', () => {
-    mainWindow = null;
+  // Disable Ctrl+R reload
+  mainWindow.webContents.on("before-input-event", (event, input) => {
+    if (input.control && input.key.toLowerCase() === "r") {
+      event.preventDefault();
+    }
   });
 
-  mainWindow.webContents.session.webRequest.onHeadersReceived(
-    (details: any, callback: (arg0: { responseHeaders: { [x: string]: any; 'Content-Security-Policy'?: string[] | undefined; }; }) => void) => {
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          'Content-Security-Policy': ['default-src \'self\' http://localhost:5173; script-src \'self\' http://localhost:5173 \'unsafe-inline\'; style-src \'self\' http://localhost:5173 \'unsafe-inline\';']
-        }
-      });
-    }
-  );
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
 }
 
 app.whenReady().then(() => {
-  // Suppress graphics warnings
-  app.commandLine.appendSwitch('--disable-gpu-vsync');
-  app.commandLine.appendSwitch('--disable-features', 'VizDisplayCompositor');
+  // Custom menu (no reload options)
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: "File",
+      submenu: [{ role: "quit" }],
+    },
+    {
+      label: "Edit",
+      submenu: [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "selectAll" },
+      ],
+    },
+    {
+      label: "View",
+      submenu: [{ role: "togglefullscreen" }, { role: "toggleDevTools" }],
+    },
+    {
+      label: "Window",
+      submenu: [{ role: "minimize" }, { role: "close" }],
+    },
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 
   createWindow();
 });
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
