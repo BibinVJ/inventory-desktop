@@ -14,11 +14,7 @@ module.exports = {
     main: 'main.js'
   },
   buildDependenciesFromSource: false,
-  asar: false,
-  asarUnpack: [
-    '**/node_modules/sqlite3/**/*',
-    '**/node_modules/better-sqlite3/**/*'
-  ],
+  asar: true,
   publish: null,
 
   win: {

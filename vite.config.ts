@@ -15,7 +15,8 @@ export default defineConfig(({ mode }) => {
   },
   base: "./",
   build: {
-    outDir: "../dist/renderer"
+    outDir: "../dist/renderer",
+    emptyOutDir: true
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
