@@ -10,6 +10,10 @@ export default defineConfig(({ mode }) => {
   return {
   root: 'src',
   plugins: [react(), svgr()],
+  server: {
+    port: 5173,
+    strictPort: true
+  },
   css: {
     postcss: './postcss.config.js',
   },

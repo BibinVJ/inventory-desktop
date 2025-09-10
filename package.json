@@ -7,7 +7,7 @@
   "main": "electron/main.ts",
   "scripts": {
     "start": "concurrently \"vite\" \"npm run electron:dev\"",
-    "electron:dev": "wait-on tcp:5174 && cross-env NODE_ENV=development ELECTRON_DISABLE_SECURITY_WARNINGS=true TMPDIR=/tmp electron electron/main.ts --no-sandbox --disable-dev-shm-usage",
+    "electron:dev": "wait-on tcp:5173 && cross-env NODE_ENV=development ELECTRON_DISABLE_SECURITY_WARNINGS=true TMPDIR=/tmp electron electron/main.ts --no-sandbox --disable-dev-shm-usage",
     "build:prod": "vite build",
     "build:electron": "tsc -p tsconfig.electron.json",
     "build": "npm run build:prod && npm run build:electron",
