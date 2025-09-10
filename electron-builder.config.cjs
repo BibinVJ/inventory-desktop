@@ -61,7 +61,8 @@ module.exports = {
         Categories: 'Office;Finance;Business;'
       }
     },
-    icon: 'build/icon.png'
+    icon: 'build/icon.png',
+    executableArgs: ['--no-sandbox', '--disable-dev-shm-usage']
   },
   deb: {
     depends: [
@@ -73,7 +74,15 @@ module.exports = {
       'xdg-utils',
       'libatspi2.0-0',
       'libuuid1',
-      'libsecret-1-0'
+      'libsecret-1-0',
+      'libgbm1',
+      'libdrm2',
+      'libxcomposite1',
+      'libxdamage1',
+      'libxrandr2',
+      'libgconf-2-4',
+      'libxkbcommon0',
+      'libwayland-client0'
     ],
     recommends: [
       'libappindicator3-1'
