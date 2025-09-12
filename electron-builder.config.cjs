@@ -67,30 +67,17 @@ module.exports = {
   deb: {
     depends: [
       'libgtk-3-0',
-      'libnotify4', 
+      'libnotify4 | libnotify-bin', 
       'libnss3',
       'libxss1',
       'libxtst6',
       'xdg-utils',
       'libatspi2.0-0',
       'libuuid1',
-      'libsecret-1-0',
-      'libgbm1',
-      'libdrm2',
-      'libxcomposite1',
-      'libxdamage1',
-      'libxrandr2',
-      'libgconf-2-4',
-      'libxkbcommon0',
-      'libwayland-client0'
-    ],
-    recommends: [
-      'libappindicator3-1'
+      'libsecret-1-0'
     ],
     priority: 'optional',
-    category: 'office',
-    afterInstall: 'build/deb-postinst.sh',
-    afterRemove: 'build/deb-postrm.sh'
+    category: 'office'
   },
   nsis: {
     oneClick: false,
