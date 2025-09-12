@@ -8,9 +8,17 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: windows
 
     steps:
       - name: Checkout
@@ -25,7 +33,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create .env file
+      - name: Create .env file (Linux)
+        if: matrix.platform == 'linux'
         run: |
           if [[ "${{ github.ref }}" == "refs/tags/"*"-rc."* ]]; then
             echo "${{ secrets.DESKTOP_ENV_STAGING }}" > .env
@@ -33,45 +42,96 @@ jobs:
             echo "${{ secrets.DESKTOP_ENV_MAIN }}" > .env
           fi
 
+      - name: Create .env file (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          if ("${{ github.ref }}" -like "refs/tags/*-rc.*") {
+            "${{ secrets.DESKTOP_ENV_STAGING }}" | Out-File -FilePath .env -Encoding utf8
+          } else {
+            "${{ secrets.DESKTOP_ENV_MAIN }}" | Out-File -FilePath .env -Encoding utf8
+          }
+        shell: powershell
+
       - name: Build Application
         run: npm run build
 
       - name: Build & Release for Linux
+        if: matrix.platform == 'linux'
         run: npm run dist:linux
         timeout-minutes: 15
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Make AppImage executable and create archives
+      - name: Build & Release for Windows
+        if: matrix.platform == 'windows'
+        run: npm run dist:win
+        timeout-minutes: 15
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make AppImage executable and create archives (Linux)
+        if: matrix.platform == 'linux'
         run: |
           chmod +x release/*.AppImage
           cd release
-          # Create tar.gz for AppImage to preserve permissions
           tar -czf inventory-manager-appimage.tar.gz *.AppImage
-          # Create zip for unpacked folder
           zip -r linux-unpacked.zip linux-unpacked/
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            release/*.AppImage
-            release/inventory-manager-appimage.tar.gz
-            release/*.deb
-            release/*.rpm
-            release/linux-unpacked.zip
-          draft: false
-          prerelease: ${{ contains(github.ref, '-rc.') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Windows archives
+        if: matrix.platform == 'windows'
+        run: |
+          cd release
+          Compress-Archive -Path win-unpacked -DestinationPath windows-unpacked.zip
+        shell: powershell
 
-      - name: Upload Release Assets
+      - name: Upload Release Assets (Linux)
+        if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v4
         with:
           name: release-linux
           path: |
             release/*.AppImage
+            release/inventory-manager-appimage.tar.gz
             release/*.deb
             release/*.rpm
-            release/linux-unpacked/**
+            release/linux-unpacked.zip
           retention-days: 30
+
+      - name: Upload Release Assets (Windows)
+        if: matrix.platform == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: |
+            release/*.exe
+            release/windows-unpacked.zip
+          retention-days: 30
+
+  create-release:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-linux
+          path: artifacts/linux
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-windows
+          path: artifacts/windows
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/linux/*
+            artifacts/windows/*
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc.') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
