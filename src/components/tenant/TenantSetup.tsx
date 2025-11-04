@@ -15,16 +15,15 @@ const TenantSetup = ({ onSuccess }: TenantSetupProps) => {
     setLoading(true);
     setError(null);
     try {
-      // Use IPC to main process to bypass CORS entirely
-      const t = (window as any)?.tenant;
-      if (!t || typeof t.validate !== 'function') {
-        console.error('tenant.validate is not available. Is preload loaded?');
-        throw new Error('IPC not available');
-      }
-      console.log('Calling tenant.validate with', tenantValue);
-      const result = await t.validate(tenantValue);
-      console.log('tenant.validate result', result);
-      if (!result?.ok) {
+      // Validate by calling API directly using axios (same as sign-in), sending x-tenant header
+      const res = await api.get('/', {
+        headers: {
+          'x-tenant': tenantValue,
+          'Accept': 'application/json',
+        },
+        validateStatus: () => true,
+      });
+      if (!(res.status >= 200 && res.status < 300)) {
         throw new Error('Invalid tenant');
       }
       // Persist tenant and set header on axios for future requests
@@ -38,7 +37,6 @@ const TenantSetup = ({ onSuccess }: TenantSetupProps) => {
       setLoading(false);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = subdomain.trim().toLowerCase();
