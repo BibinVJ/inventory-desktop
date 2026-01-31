@@ -11,7 +11,6 @@ const isDev = process.env.NODE_ENV === "development";
 
 function createWindow() {
   const preloadPath = path.join(__dirname, 'preload.js');
-  console.log('[Electron] Preload path:', preloadPath);
 
   mainWindow = new BrowserWindow({
     width: 1600,
